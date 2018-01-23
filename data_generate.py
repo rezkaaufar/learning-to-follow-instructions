@@ -6,8 +6,8 @@ import copy
 logging.basicConfig(level=logging.INFO)
 
 show_progress = False
-n_grammars = 5
-n_examples = 4000
+n_grammars = 2
+n_examples = 10000
 K = 3  # maximum size of k-factors
 k = 3  # minumum size of k-factors
 F = 5  # number of k-factors in a grammar
