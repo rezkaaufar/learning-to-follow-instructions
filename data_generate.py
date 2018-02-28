@@ -6,7 +6,7 @@ import copy
 logging.basicConfig(level=logging.INFO)
 
 show_progress= False
-n_grammars = 10000
+n_grammars = 500
 n_examples = 2
 K = 3  # maximum size of k-factors
 k = 3  # minumum size of k-factors
@@ -49,27 +49,27 @@ def gen_example(g, cls):
         if belongs(g, s) == cls:
             return s
 
-f = open("subreg_train_10000.txt", "w")
-ft = open("subreg_test_10000.txt", "w")
+# f = open("subreg_train_500_2.txt", "w")
+# ft = open("subreg_test_500_2.txt", "w")
 
-train_composition = 0.8 * n_examples
-batch_example = 0
-for i in range(n_grammars):
-    g = gen_grammar()
-    g_str = "#".join(g)
-    for j in range(n_examples):
-        if show_progress:
-            sys.stderr.write("\r{:02.2f}%".format(100*(i*n_examples+j)/n_grammars/n_examples))
-        pos = gen_example(g, True)
-        neg = gen_example(g, False)
-        if batch_example + (j+1) <= train_composition + batch_example :
-            f.write("\t".join([g_str, pos, "1"]) + "\n")
-            f.write("\t".join([g_str, neg, "0"]) + "\n")
-        else:
-            ft.write("\t".join([g_str, pos, "1"]) + "\n")
-            ft.write("\t".join([g_str, neg, "0"]) + "\n")
-    batch_example += n_examples
+# train_composition = 0.8 * n_examples
+# batch_example = 0
+# for i in range(n_grammars):
+#     g = gen_grammar()
+#     g_str = "#".join(g)
+#     for j in range(n_examples):
+#         if show_progress:
+#             sys.stderr.write("\r{:02.2f}%".format(100*(i*n_examples+j)/n_grammars/n_examples))
+#         pos = gen_example(g, True)
+#         neg = gen_example(g, False)
+#         if batch_example + (j+1) <= train_composition + batch_example :
+#             f.write("\t".join([g_str, pos, "1"]) + "\n")
+#             f.write("\t".join([g_str, neg, "0"]) + "\n")
+#         else:
+#             ft.write("\t".join([g_str, pos, "1"]) + "\n")
+#             ft.write("\t".join([g_str, neg, "0"]) + "\n")
+#     batch_example += n_examples
 
-f.close()
-ft.close()
+# f.close()
+# ft.close()
 
