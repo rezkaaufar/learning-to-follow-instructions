@@ -1,4 +1,4 @@
-# learning-to-learn
+# learning-to-follow-instructions
 
 Thesis Draft Link : https://www.overleaf.com/13951194mxgqhzzhjrkr#/54080220/
 
