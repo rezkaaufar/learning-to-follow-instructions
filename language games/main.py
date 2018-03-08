@@ -14,7 +14,7 @@ from tensorboardX import SummaryWriter
 
 ## hyperparameters ##
 # hyperparameters
-n_epochs = 80
+n_epochs = 100
 n_hidden = 128 # (32, 64, 128, 256)
 n_layers = 2 # (1, 2)
 lr = 1e-3
@@ -23,7 +23,6 @@ batch_size = 200
 dropout = 0.5
 ponder_step = 5
 concat = False
-combine_str = ""
 dot_str = ""
 
 if concat:
@@ -56,20 +55,20 @@ dataset.randomize_data()
 
 # initialize model
 conf = [[32,64,128,256],[1,2],[0,0.2,0.5]]
-#config = list(itertools.product(*conf))
-config = [[128,2,0.5]]
+config = list(itertools.product(*conf))
+#config = [[128,2,0.5]]
 
 def run_train(config):
   for j, elem in enumerate(config):
-    model_name = "LSTM_24000_3_nvl_" + which_data + "_hid" + str(elem[0]) + \
-                 "_layer" + str(elem[1]) + "_drop" + str(elem[2])  + dot_str
+    model_name = "LSTM_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
+                 "_layer" + str(elem[1]) + "_drop" + str(elem[2]) + dot_str
     batch_size = 200
     if load:
       decoder = torch.load("models/" + model_name + ".tar")
     else:
       decoder = Decoder.Decoder(dataset.n_letters, elem[0], dataset.n_letters, n_layers=elem[1],
                         dropout_p=elem[2], example_len=dataset.len_instr, concat=False)
-    encoder = Encoder.Encoder(dataset.n_words, elem[0], n_layers=n_layers)
+    encoder = Encoder.Encoder(dataset.n_words, elem[0], n_layers=elem[1])
     optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
     criterion = nn.NLLLoss()
     decoder.cuda()

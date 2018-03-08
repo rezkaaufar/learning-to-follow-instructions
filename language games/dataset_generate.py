@@ -180,9 +180,9 @@ total_test = 4000
 total_valid = 4000
 total = total_train + total_test + total_valid
 
-mode = "blocks"
-blocks_b = True
-utter_b = False
+mode = "utter"
+blocks_b = False
+utter_b = True
 
 f = open("./lang_games_data_artificial_train_nvl_" + mode + "_" + str(total) + ".txt", "w")
 ft = open("./lang_games_data_artificial_test_nvl_" + mode + "_" + str(total) + ".txt", "w")
