@@ -47,7 +47,7 @@ if not load:
                 dropout_p=dropout, grammar_len=grammar_len, n_k_factors=n_k_factors)
   rnn.cuda()
 else:
-  rnn = rnn = torch.load('./models/lstm_5000example_20000c_attn_ponder_nvlex.tar').cuda()
+  rnn = torch.load('./models/lstm_5000example_20000c_attn_ponder_nvlex.tar').cuda()
 
 rnn_optimizer = torch.optim.Adam(rnn.parameters(), lr=lr)
 criterion = nn.CrossEntropyLoss()

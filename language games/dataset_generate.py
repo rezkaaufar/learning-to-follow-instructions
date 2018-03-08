@@ -12,7 +12,7 @@ num_tiles, max_block, num_color = 6, 3, 3
 
 ### for blocks novel ###
 alphabet = ["0","1","2","3","X"]
-novel_amount = 15
+novel_amount = 8
 blocks = [''.join(p) for p in itertools.product(alphabet, repeat=3)]
 blocks_n = []
 for bl in blocks:
@@ -41,7 +41,7 @@ def add_info(string):
 command_list = [["remove", "add"], ["cyan", "brown", "red", "orange"],
                 ["1st", "2nd", "3rd", "4th", "5th", "6th", "even", "odd", "leftmost", "rightmost", "every"]]
 # length : 88
-novel_amount = 10
+novel_amount = 5
 command = [add_info(" ".join(p)) for p in itertools.product(*command_list)]
 r_command = command[:44]
 a_command = command[44:]
@@ -175,14 +175,14 @@ def generate_train_data_novel(num_tiles, max_block, num_color, opr, blocks_b, ut
 
   return block_config, command, next_block_config, match, added_set
 
-total_train = 16000
+total_train = 42000
 total_test = 4000
 total_valid = 4000
 total = total_train + total_test + total_valid
 
-mode = "utter_blocks"
+mode = "blocks"
 blocks_b = True
-utter_b = True
+utter_b = False
 
 f = open("./lang_games_data_artificial_train_nvl_" + mode + "_" + str(total) + ".txt", "w")
 ft = open("./lang_games_data_artificial_test_nvl_" + mode + "_" + str(total) + ".txt", "w")
