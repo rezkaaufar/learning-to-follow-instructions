@@ -1,0 +1,54 @@
+Deep learning methods outperform hand-coded systems relying on manual feature
+engineering on a large variety of language tasks [??].  The price to pay for
+this remarkable performance is a very data-hungry training process.  While this
+may be a reasonable price to pay when the training is done in an "offline"
+fashion (for example, machine translation systems that are trained once and for
+all with a fixed training set), it may be that for "online" learning systems
+where each learning interaction is more costly and thus, fast learning is
+paramount, deep learning might just not do. For example, Wang et al. (2016)
+describe SHRDLURN, a game where a system has to operate on piles of colored
+blocks following natural language instructions written by a human user. While
+the system knows nothing about the language that the user will use, it does
+have hand-coded knowledge about the nature of the operations that it can
+execute on this world, and how they compose. While this assumption is
+reasonable for this toy domain, in the long run, it may be desirable to adopt
+end-to-end systems that can learn the target function with no need of manual
+encoding. 
+
+In this work we aim at bridging these two seemingly contradictory requirements
+--fast learning on one end, and flexibility on the other-- proposing a two
+step training regime. First, we train an end-to-end architecture to play
+SHRDLURN using utterances drawn from a (large)  artificial grammar. This step
+allows the system to learn the space of possible commands in this game. Next,
+we use the pre-trained system on an online learning phase, where it has to
+quickly adapt to the language of the current speaker, which can be completely
+different to the one it was trained on. We explore two different adaptation
+strategies. One, following Herbelot et al. (2017), we apply plain gradient
+descent on the new training instances, albeit with a relatively higher learning
+rate. Second, we propose a new system architecture that can choose to re-use
+previously learned word embeddings as an educated guess for what a new word
+could mean.  
+
+Our preliminary results on the first phrase show that, as expected, when
+trained on the artificial grammar the high-bias log-linear model proposed by
+Wang et al. learns very quickly but at the same time it also soon hits a
+performance roof that it cannot perforate. On the other hand, even though our
+deep architecture must be trained for several epochs to reach reasonable
+performance (thus preventing the model to be readily deployed for human
+interaction without this pre-training phase), it reaches very good
+generalization performance. Both models are evaluated on commands and block
+piles configuration that were unattested at training time.  <Describe
+evaluation on new word learning if we have some results there>
+
+This is work in progress at the moment. Our final aim is to evaluate the system
+on the naturalistic data collected by Wang et al. for this game. TODO: add some
+conclusions.
+
+
+References:
+
+Wang, Sida I., Percy Liang, and Christopher D. Manning. "Learning language
+games through interaction." arXiv preprint arXiv:1606.02447 (2016).
+
+Herbelot, Aurélie, and Marco Baroni. "High-risk learning: acquiring new word
+vectors from tiny data." arXiv preprint arXiv:1707.06556 (2017).
