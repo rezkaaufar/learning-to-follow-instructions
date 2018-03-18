@@ -14,7 +14,7 @@ class RNN(nn.Module):
     self.dropout_p = dropout_p
     self.input_dropout = nn.Dropout(p=dropout_p)
     self.embed = nn.Embedding(input_size, hidden_size)
-    self.lstm = nn.LSTM(2 * hidden_size, hidden_size, n_layers, dropout=dropout_p, batch_first=True)
+    self.lstm = nn.LSTM(hidden_size, hidden_size, n_layers, dropout=dropout_p, batch_first=True)
     self.output = nn.Linear(hidden_size, output_size)
     self.n_k_factors = n_k_factors
     self.grammar_len = grammar_len

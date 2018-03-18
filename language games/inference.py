@@ -15,6 +15,8 @@ def infer(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, at
   acc_tot_seq = 0
   decoder.zero_grad()
   encoder.zero_grad()
+  decoder.eval()
+  encoder.eval()
   inp, instr, target = dataset.generate_batch(start_index, batch_size, inps_t, instrs_t, targets_t)
   encoder_hidden = encoder.init_hidden(batch_size)
   encoder_ht, encoder_hidden = encoder(instr, encoder_hidden, batch_size)

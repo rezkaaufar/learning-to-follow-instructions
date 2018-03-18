@@ -6,9 +6,9 @@ def accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t, b
   it = len(inps_t) / batch_size
   acc_tot = 0
   acc_tot_seq = 0
+  decoder.eval()
+  encoder.eval()
   for i in range(int(it)):
-    decoder.zero_grad()
-    encoder.zero_grad()
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps_t, instrs_t, targets_t)
     encoder_hidden = encoder.init_hidden(batch_size)
@@ -47,9 +47,9 @@ def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_
   it = len(inps) / batch_size
   acc_tot = 0
   acc_tot_seq = 0
+  decoder.eval()
+  encoder.eval()
   for i in range(int(it)):
-    decoder.zero_grad()
-    encoder.zero_grad()
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
     encoder_hidden = encoder.init_hidden(batch_size)

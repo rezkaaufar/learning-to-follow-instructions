@@ -4,10 +4,11 @@ from torch.autograd import Variable
 import random
 
 # training
-def train(encoder, decoder, optimizer, criterion, len_targets, batch_size,
+def train(encoder, decoder, enc_optimizer, optimizer, criterion, len_targets, batch_size,
           inp, instr, target, attn=False):
   loss = 0
-  decoder.zero_grad()
+  enc_optimizer.zero_grad()
+  optimizer.zero_grad()
   encoder_hidden = encoder.init_hidden(batch_size)
   encoder_ht, encoder_hidden = encoder(instr, encoder_hidden, batch_size)
   context = encoder_ht
@@ -24,6 +25,8 @@ def train(encoder, decoder, optimizer, criterion, len_targets, batch_size,
 
   loss.backward()
   torch.nn.utils.clip_grad_norm(decoder.parameters(), 5.0)
+  torch.nn.utils.clip_grad_norm(encoder.parameters(), 5.0)
+  enc_optimizer.step()
   optimizer.step()
 
   return loss.data[0] / len_targets
