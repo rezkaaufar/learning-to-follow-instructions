@@ -28,16 +28,16 @@ learning rate. Second, we propose a new system architecture that can choose to
 re-use previously learned word embeddings as an educated guess for what a new
 word could mean.  
 
-This is work in progress. Our preliminary results show that, as expected, 
-given a large artificial grammar, our proposed neural network architecture 
-outperforms the hand-coded model of Wang et al. even on completely unseen
-utterances and block configurations. However, Wang et al. reaches 70% accuracy
-after seeing less than 20 examples, whereas ours needs XXXX to reach the same
-performance. 
-Our next steps will include measuring how fast this architecture can adapt to
-new words (imagine that I now say "grok cube" to refer to a "red cube" or that
-I add a new unseen verb "move"). Finally, we want to test it on naturalistic
-data collected by Wang et al. from human speakers.
+This is work in progress. Our preliminary results (see suplementary figure)
+show that, as expected, given a large artificial grammar, our proposed neural
+network architecture outperforms the hand-coded model of Wang et al. even on
+completely unseen utterances and block configurations. However, Wang et al.
+reaches 70% accuracy after seeing less than 20 examples, whereas ours needs
+64.000 to reach the same performance.  Our next steps will include measuring
+how fast this architecture can adapt to new words (imagine that I now say "grok
+cube" to refer to a "red cube" or that I add a new unseen verb "move").
+Finally, we want to test it on naturalistic data collected by Wang et al. from
+human speakers.
 
 
 References:
