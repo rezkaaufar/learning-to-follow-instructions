@@ -1,44 +1,44 @@
-During the last years, language processing and understanding systems have been
-dominated by deep learning models exhibiting impressive performances. Yet,
-they comes with the cost of requiring huge amounts of training data.  While
-this may be a reasonable price to pay when the training is done "offline"
-(for example, machine translation systems trained once and for all), it may be
-prohibitive to use such models for online learning in a human-machine
-communication setup where the amount of training data is extremely limited.
-Instead, earlier work on human-machine communication have relied on hand-coded
-domain-specific models. For example, Wang et al. (2016) describe SHRDLURN, a
-game where a system has to manipulate piles of colored blocks following natural
-language instructions written by a human user. While the system knows nothing
-about the language that the user will use, it does encode the nature of the
-operations that it can execute on this world and how they compose. While this
-assumption is reasonable enough for this toy domain, in the long run it may be
-desirable to adopt end-to-end systems that can learn the target function with
-no need of manual encoding. 
+For the last years, language processing and understanding systems have been
+dominated by deep learning models which can exhibit impressive performances.
+Yet, their success comes with the cost of requiring huge amounts of training
+data. This may be a reasonable price to pay when the training is done "offline"
+(for example, machine translation systems trained once and for all), but it may
+be prohibitive to use such models for learning from human interaction, where
+data is particularly scarce. In contrast, earlier work on human-machine
+communication have relied on hand-coded domain-specific models.  For example,
+Wang et al. (2016) describe SHRDLURN, a game where a system has to manipulate
+piles of colored blocks following natural language instructions given by a
+human user. While the system knows nothing about the language that the user
+will use, it does encode the nature of the operations that it can execute on
+this world and how they compose. While this assumption is reasonable enough for
+this toy domain, in the long run it may be desirable to adopt end-to-end
+systems that can learn the possible actions with no need of manual encoding. 
 
 In this work we aim at bridging these two seemingly contradictory requirements
---fast learning on one end, and flexibility on the other-- proposing a two
-step training regime. First, we train an end-to-end architecture to play
-SHRDLURN using utterances drawn from a (large) artificial grammar. This step
-allows the system to learn the space of possible operations in this game.
-Next, we use the pre-trained system on an online learning phase, where it has
-to quickly adapt to the actual language of the current speaker, which can be
-very different from the one it was trained on. We explore two different
-adaptation strategies. One, following Herbelot et al. (2017), we apply plain
-gradient descent on the new training instances, albeit with a relatively higher
-learning rate. Second, we propose a new system architecture that can choose to
-re-use previously learned word embeddings as an educated guess for what a new
-word could mean.  
+--fast learning on one end, and flexibility on the other-- proposing a two step
+training regime. First, we train an end-to-end architecture to play SHRDLURN
+using utterances drawn from a (large) artificial grammar. This step allows the
+system to learn the space of possible operations in this game.  Next, we use
+the pre-trained system on an online learning phase, where it has to quickly
+adapt to the actual language of the current speaker, which can be very
+different from the one it was trained on. We explore two different adaptation
+strategies. One, following Herbelot et al. (2017), we apply plain gradient
+descent on the new training instances, albeit with a relatively higher learning
+rate. Second, we propose a new system architecture that can choose to re-use
+previously learned word embeddings as an educated guess for what a new word
+could mean.  
 
-This is work in progress. Our preliminary results (see suplementary figure)
-show that, as expected, given a large artificial grammar, our proposed neural
-network architecture outperforms the hand-coded model of Wang et al. even on
-completely unseen utterances and block configurations. However, Wang et al.
-reaches 70% accuracy after seeing less than 20 examples, whereas ours needs
-64.000 to reach the same performance.  Our next steps will include measuring
-how fast this architecture can adapt to new words (imagine that I now say "grok
-cube" to refer to a "red cube" or that I add a new unseen verb "move").
-Finally, we want to test it on naturalistic data collected by Wang et al. from
-human speakers.
+This is work in progress. Our preliminary results show that, as expected, given
+a large artificial grammar our proposed neural network architecture outperforms
+the hand-coded baseline even on completely unseen utterances and block
+configurations (see suplementary figure). However, the baseline system reaches
+70% accuracy after seeing less than 20 examples, whereas ours needs 64.000 to
+obtain the same performance. Presently, we are measuring how fast this
+architecture can adapt to new words (imagine that I now say "grok cube" to
+refer to a "red cube"). Preliminary results show that if a single word is
+corrupted, we can recover 84.5% of the original accuracy just with 5 examples.
+Finally, we intend to test it on naturalistic data collected by Wang et al.
+from human speakers.
 
 
 References:
