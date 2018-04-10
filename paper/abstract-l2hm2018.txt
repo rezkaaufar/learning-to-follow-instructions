@@ -1,18 +1,19 @@
-Deep learning methods have been shown to outperform, on a large variety of
-language tasks, hand-coded systems that rely on manual feature engineering. The
-price to pay for this remarkable achievement is a very data-hungry training
-process.  While this may be a reasonable price to pay when the training is done
-in an "offline" fashion (for example, machine translation systems that are
-trained once and for all with a fixed training set), for "online" learning
-systems where each learning interaction is more costly and thus, fast learning
-is paramount, deep learning alone seems not enough. For example, Wang et al.
-(2016) describe SHRDLURN, a game where a system has to manipulate piles of
-colored blocks following natural language instructions written by a human user.
-While the system knows nothing about the language that the user will use, it
-does have hand-coded knowledge about the nature of the operations that it can
-execute on this world and how they compose. While this assumption is reasonable
-for this toy domain, in the long run it may be desirable to adopt end-to-end
-systems that can learn the target function with no need of manual encoding. 
+During the last years, language processing and understanding systems have been
+dominated by deep learning models exhibiting impressive performances. Yet,
+they comes with the cost of requiring huge amounts of training data.  While
+this may be a reasonable price to pay when the training is done "offline"
+(for example, machine translation systems trained once and for all), it may be
+prohibitive to use such models for online learning in a human-machine
+communication setup where the amount of training data is extremely limited.
+Instead, earlier work on human-machine communication have relied on hand-coded
+domain-specific models. For example, Wang et al. (2016) describe SHRDLURN, a
+game where a system has to manipulate piles of colored blocks following natural
+language instructions written by a human user. While the system knows nothing
+about the language that the user will use, it does encode the nature of the
+operations that it can execute on this world and how they compose. While this
+assumption is reasonable enough for this toy domain, in the long run it may be
+desirable to adopt end-to-end systems that can learn the target function with
+no need of manual encoding. 
 
 In this work we aim at bridging these two seemingly contradictory requirements
 --fast learning on one end, and flexibility on the other-- proposing a two
