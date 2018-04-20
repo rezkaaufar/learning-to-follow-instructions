@@ -1,0 +1,31 @@
+\section{Introduction}
+
+For the last years, language processing and understanding systems have been
+dominated by deep learning models which can exhibit impressive performances.
+Yet, their success comes with the cost of requiring huge amounts of training
+data. This may be a reasonable price to pay when the training is done "offline"
+(for example, machine translation systems trained once and for all), but it may
+be prohibitive to use such models for learning from human interaction, where
+data is particularly scarce. In contrast, earlier work on human-machine
+communication have relied on hand-coded domain-specific models.  For example,
+Wang et al. (2016) describe SHRDLURN, a game where a system has to manipulate
+piles of colored blocks following natural language instructions given by a
+human user. While the system knows nothing about the language that the user
+will use, it does encode the nature of the operations that it can execute on
+this world and how they compose. While this assumption is reasonable enough for
+this toy domain, in the long run it may be desirable to adopt end-to-end
+systems that can learn the possible actions with no need of manual encoding. 
+
+In this work we aim at bridging these two seemingly contradictory requirements
+--fast learning on one end, and flexibility on the other-- proposing a two step
+training regime. First, we train an end-to-end architecture to play SHRDLURN
+using utterances drawn from a (large) artificial grammar. This step allows the
+system to learn the space of possible operations in this game.  Next, we use
+the pre-trained system on an online learning phase, where it has to quickly
+adapt to the actual language of the current speaker, which can be very
+different from the one it was trained on. We explore two different adaptation
+strategies. One, following Herbelot et al. (2017), we apply plain gradient
+descent on the new training instances, albeit with a relatively higher learning
+rate. Second, we propose a new system architecture that can choose to re-use
+previously learned word embeddings as an educated guess for what a new word
+could mean.  
