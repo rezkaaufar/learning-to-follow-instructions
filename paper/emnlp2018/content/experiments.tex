@@ -1,6 +1,21 @@
 \section{Experiments}
 
+We divided our experimental setup according to the two phases of our training 
+paradigm. First, we explore the performance of different architectural choices 
+on the task at hand (Section \ref{sec:pretraining}). For this, we created a 
+large dataset with (artificial) natural language instructions paired with a 
+block configuration both in a given starting state and in the result of 
+applying the given instruction (see Figure X). We then used this dataset to 
+train our different architectures and pick the one that obtains the best 
+results in a challenging test split focusing on compositional learning.
+Next, we run multiple controlled experiments to investigate the adaptation 
+skills of our online learning system. Concretely, we test whether the model is 
+able to recover the original meaning of a word that has been replaced with a 
+new arbitrary symbol (e.g. ``\emph{red}'' becomes ``\emph{roze}'') or, more 
+challenging, its ability to ignore non-informative interjections.
+ 
 \subsection{Pretraining}
+\label{sec:pretraining}
 
 \subsection{Recovering corrupted words}
 
