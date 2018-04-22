@@ -1,3 +1,5 @@
+\section{Introduction}
+
 For the last years, language processing and understanding systems have been
 dominated by deep learning models which can exhibit impressive performances.
 Yet, their success comes with the cost of requiring huge amounts of training
@@ -27,24 +29,3 @@ descent on the new training instances, albeit with a relatively higher learning
 rate. Second, we propose a new system architecture that can choose to re-use
 previously learned word embeddings as an educated guess for what a new word
 could mean.  
-
-This is work in progress. Our preliminary results show that, as expected, given
-a large artificial grammar our proposed neural network architecture outperforms
-the hand-coded baseline even on completely unseen utterances and block
-configurations (see suplementary figure). However, the baseline system reaches
-70% accuracy after seeing less than 20 examples, whereas ours needs 64.000 to
-obtain the same performance. Presently, we are measuring how fast this
-architecture can adapt to new words (imagine that I now say "grok cube" to
-refer to a "red cube"). Preliminary results show that if a single word is
-corrupted, we can recover 84.5% of the original accuracy just with 5 examples.
-Finally, we intend to test it on naturalistic data collected by Wang et al.
-from human speakers.
-
-
-References:
-
-Wang, Sida I., Percy Liang, and Christopher D. Manning. "Learning language
-games through interaction." arXiv preprint arXiv:1606.02447 (2016).
-
-Herbelot, Aurélie, and Marco Baroni. "High-risk learning: acquiring new word
-vectors from tiny data." arXiv preprint arXiv:1707.06556 (2017).
