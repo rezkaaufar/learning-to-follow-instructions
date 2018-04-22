@@ -15,8 +15,9 @@ from tensorboardX import SummaryWriter
 ## hyperparameters ##
 # hyperparameters
 n_epochs = 100
-n_hidden = 128 # (32, 64, 128, 256)
+n_hidden = 256 # (32, 64, 128, 256)
 n_layers = 2 # (1, 2)
+layers_conv = 5
 lr = 1e-3
 clip = 5.0
 batch_size = 200
@@ -67,29 +68,29 @@ dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v
 dataset.randomize_data()
 
 # initialize model
-#conf = [[256],[1,2],[0,0.2,0.5]]
-#config = list(itertools.product(*conf))
-config = []
-config.append((64, 2, 0.2))
-config.append((64, 2, 0.5))
-config.append((128, 2, 0))
-config.append((128, 2, 0.2))
-config.append((128, 2, 0.5))
-config.append((256, 2, 0.5))
+conf = [[256],[2],[0.5]]
+config = list(itertools.product(*conf))
+# config = []
+# config.append((64, 2, 0.2))
+# config.append((64, 2, 0.5))
+# config.append((128, 2, 0))
+# config.append((128, 2, 0.2))
+# config.append((128, 2, 0.5))
+# config.append((256, 2, 0.5))
 #print(config)
 #config = [[128,2,0.5]]
 
 def run_train(config):
   for j, elem in enumerate(config):
-    model_name = "Seq2Seq_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
+    model_name = "Seq2Conv_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
                  "_layer" + str(elem[1]) + "_drop" + str(elem[2]) + dot_str + bi_str
     batch_size = 200
     if load:
       decoder = torch.load("models/" + model_name + ".tar")
     else:
-      decoder = Decoder.Decoder(dataset.n_letters, elem[0], dataset.n_letters, n_layers=elem[1],
-                        dropout_p=elem[2], example_len=dataset.len_instr, concat=concat, bi=bi)
-    encoder = Encoder.Encoder(dataset.n_words, elem[0], n_layers=elem[1], bi=bi)
+      decoder = Decoder.ConvDecoder(dataset.n_letters, elem[0], elem[0], dataset.n_letters, dataset.len_example,
+                                    kernel_size=3, n_layers=layers_conv, dropout_p=elem[2], example_len=dataset.len_instr)
+    encoder = Encoder.EncoderWord(dataset.n_words, elem[0], n_layers=elem[1])
     enc_optimizer = torch.optim.Adam(encoder.parameters(), lr=lr)
     optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
     criterion = nn.NLLLoss()
@@ -120,16 +121,18 @@ def run_train(config):
                                                            batch_size, attn=attn)
       acc_tr, acc_tr_seq = evaluation.accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets,
                                                           batch_size, attn=attn)
-      writer.add_scalar(cloud_str + 'data/test_accuracy', acc, iters)
-      writer.add_scalar(cloud_str + 'data/train_accuracy', acc_tr, iters)
-      writer.add_scalar(cloud_str + 'data/test_seq_accuracy', acc_seq, iters)
-      writer.add_scalar(cloud_str + 'data/train_seq_accuracy', acc_tr_seq, iters)
-      writer.add_scalar(cloud_str + 'data/val_accuracy', acc_val, iters)
-      writer.add_scalar(cloud_str + 'data/val_seq_accuracy', acc_val_seq, iters)
+      writer.add_scalar('data/test_accuracy', acc, iters)
+      writer.add_scalar('data/train_accuracy', acc_tr, iters)
+      writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
+      writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
+      writer.add_scalar('data/val_accuracy', acc_val, iters)
+      writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
-        with open(cloud_str + "models/" + model_name + ".tar", 'wb') as ckpt:
+        with open(cloud_str + "models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+          torch.save(encoder, ckpt)
+        with open(cloud_str + "models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
       #accs.append(acc_seq)
       #accs_tr.append(acc_tr_seq)

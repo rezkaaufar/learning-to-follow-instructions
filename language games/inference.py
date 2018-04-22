@@ -3,6 +3,12 @@ import torch
 from torch.autograd import Variable
 import random
 
+def generate_position_ids(batch_size, len_targets):
+  pos_tensor = torch.zeros(batch_size, len_targets).long()
+  for i in range(batch_size):
+    pos_tensor[i] = torch.LongTensor(range(0, len_targets))
+  return Variable(pos_tensor).cuda()
+
 def convert_to_characters(dataset, arr):
   res = ""
   for ar in arr:
@@ -10,27 +16,29 @@ def convert_to_characters(dataset, arr):
   return res
 
 def infer(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, attn=True):
-  start_index = random.choice(len(inps_t))
+  batch_size = 20
+  start_index = 10
   acc_tot = 0
   acc_tot_seq = 0
-  decoder.zero_grad()
-  encoder.zero_grad()
   decoder.eval()
   encoder.eval()
+  attn = True
   inp, instr, target = dataset.generate_batch(start_index, batch_size, inps_t, instrs_t, targets_t)
   encoder_hidden = encoder.init_hidden(batch_size)
   encoder_ht, encoder_hidden = encoder(instr, encoder_hidden, batch_size)
   context = encoder_ht
   hidden = encoder_hidden
+  position_ids = generate_position_ids(batch_size, dataset.len_targets)
   if attn:
     pred_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
     tgt_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
+    output, vis_attn = decoder(inp, position_ids, batch_size, attn=True,
+                               context=context)
+    op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(dataset.len_targets):
-      output, ht, hidden, vis_attn = decoder(inp[:, c].unsqueeze(1), hidden, batch_size, attn=True,
-                                             context=context)
       tgt_seq[c] = target[:, c]
-      pred_seq[c] = output.max(1)[1]
-      accuracy = (output.max(1)[1] == target[:, c]).float().sum().float() / batch_size
+      pred_seq[c] = op[c].max(1)[1]
+      accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
       acc_tot += accuracy.data[0]
     truth = Variable(torch.ones(batch_size)).cuda() * 23
     # print(pred_seq, tgt_seq)

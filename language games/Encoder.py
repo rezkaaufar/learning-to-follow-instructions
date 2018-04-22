@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-class Encoder(nn.Module):
+class EncoderWord(nn.Module):
   def __init__(self, input_size, hidden_size, n_layers=2, bi=False):
-    super(Encoder, self).__init__()
+    super(EncoderWord, self).__init__()
 
     self.input_size = input_size
     self.hidden_size = hidden_size

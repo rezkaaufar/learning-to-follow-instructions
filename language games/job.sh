@@ -13,6 +13,7 @@ NPROC=`nproc --all`
 
 #Execute program located in $HOME
 for i in `seq 1 $NPROC`; do
-  python3 $HOME/language_games/main.py &
+  #python3 $HOME/language_games/main.py &
+  python3 $HOME/language_games/online_train.py &
 done
 wait
