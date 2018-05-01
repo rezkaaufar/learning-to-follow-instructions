@@ -1,24 +1,54 @@
 \section{Experiments}
 
 We divided our experimental setup according to the two phases of our training 
-paradigm. First, we explore the performance of different architectural choices 
-on the task at hand (Section \ref{sec:pretraining}). For this, we created a 
-large dataset with (artificial) natural language instructions paired with a 
-block configuration both in a given starting state and in the result of 
-applying the given instruction (see Figure X). We then used this dataset to 
-train our different architectures and pick the one that obtains the best 
-results in a challenging test split focusing on compositional learning.
-Next, we run multiple controlled experiments to investigate the adaptation 
-skills of our online learning system. Concretely, we test whether the model is 
-able to recover the original meaning of a word that has been replaced with a 
-new arbitrary symbol (e.g. ``\emph{red}'' becomes ``\emph{roze}'') or, more 
-challenging, its ability to ignore non-informative interjections.
+paradigm. First, we explore different architectural choices for solving the 
+SHRDLURN task (Section \ref{sec:pretraining}) on a large 
+artificially-constructed dataset. Next, we run multiple controlled experiments 
+to investigate the adaptation skills of our online learning system. Concretely, 
+we first test whether the model is able to recover the original meaning of a 
+word 
+that has been replaced with a new arbitrary symbol -- e.g. ``\emph{red}'' 
+becomes ``\emph{roze}''-- (Section \ref{sec:word-relearning}). Next, we extend 
+this analysis to assess its ability to ignore non-informative interjections 
+(Section \ref{sec:noise-robustness}). Finally, we move to real human utterances 
+using the dataset collected by \cite{Wang:etal:2016}.
  
 \subsection{Pretraining}
 \label{sec:pretraining}
 
+Our first goal is determining whether, given sufficient time and data, an 
+end-to-end architecture can learn this task better than the log-linear model 
+proposed by \newcite{Wang:etal:2016}. To this end, we generated artificial 
+natural language instructions following the grammar 
+in Figure \ref{fig:grammar}. We then used the resulting 66 unique utterances in 
+this language to construct the dataset by randomly sampling initial block 
+configurations and then computing the resulting block configuration when the 
+instructions are correctly applied. Following this procedure we obtain triples 
+of the form ({\small \texttt{initial\_configuration}, \texttt{instruction}, 
+\texttt{target\_configuration}}). The task of the system is, given the initial 
+configuration and the natural language instruction, predict the target 
+configuration\footnote{The original paper produces a rank of candidate 
+configurations to give to a human annotator on a first stage. Since here we 
+going to focus on pre-annotated data were only the expected target 
+configuration is given, we will restrict our evaluation to top-1 accuracy}.
+
+\begin{figure}
+	\small
+	\begin{tabular}{ccc}
+		S & $\rightarrow$ & VERB COLOR at POS tile \\
+		VERB & $\rightarrow$ & add $\vert$ remove \\
+		COLOR & $\rightarrow$ & red $\vert$ cyan $\vert$ brown $\vert$ orange \\
+		POS & $\rightarrow$ & 1st $\vert$ 2nd $\vert$ 3rd $\vert$ 4th $\vert$ 
+		5th $\vert$ 6th $\vert$ even $\vert$ odd\\
+	\end{tabular}
+	\caption{Grammar of our artificially generated language\label{fig:grammar}}
+\end{figure}
+
 \subsection{Recovering corrupted words}
+\label{sec:word-relearning}
 
 \subsection{Robustness to noise}
+\label{sec:noise-robustness}
 
 \subsection{Adapting to human speakers}
+\label{sec:human-data}
