@@ -28,7 +28,7 @@ attn = True
 dot_str = ""
 bi = False
 bi_str = ""
-cloud = True
+cloud = False
 cloud_str = ""
 
 if cloud:
@@ -68,10 +68,10 @@ dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v
 dataset.randomize_data()
 
 # initialize model
-conf = [[256],[2],[0.5]]
-config = list(itertools.product(*conf))
-# config = []
-# config.append((64, 2, 0.2))
+# conf = [[256],[2],[0.5]]
+# config = list(itertools.product(*conf))
+config = []
+config.append((64, 1, 0.5))
 # config.append((64, 2, 0.5))
 # config.append((128, 2, 0))
 # config.append((128, 2, 0.2))
@@ -83,7 +83,7 @@ config = list(itertools.product(*conf))
 def run_train(config):
   for j, elem in enumerate(config):
     model_name = "Seq2Conv_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
-                 "_layer" + str(elem[1]) + "_drop" + str(elem[2]) + dot_str + bi_str
+                 "_layer" + str(elem[1]) + "_drop" + str(elem[2]) + dot_str + bi_str + "_new"
     batch_size = 200
     if load:
       decoder = torch.load("models/" + model_name + ".tar")
@@ -110,7 +110,7 @@ def run_train(config):
       for i in range(int(steps)):
         start_index = i * batch_size
         inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
-        loss = train.train(encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
+        loss = train.train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
                            inp, instr, target, attn=attn)
         writer.add_scalar('data/loss', loss, iters)
         losses.append(loss)
@@ -134,6 +134,10 @@ def run_train(config):
           torch.save(encoder, ckpt)
         with open(cloud_str + "models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
+        torch.save(decoder.state_dict(),
+                   cloud_str + 'models/Params_Decoder_' + model_name + '.tar')
+        torch.save(encoder.state_dict(),
+                   cloud_str + 'models/Params_Encoder_' + model_name + '.tar')
       #accs.append(acc_seq)
       #accs_tr.append(acc_tr_seq)
       print("Config {}, Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "

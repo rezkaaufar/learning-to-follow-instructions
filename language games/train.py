@@ -10,7 +10,7 @@ def generate_position_ids(batch_size, len_targets):
   return Variable(pos_tensor).cuda()
 
 # training
-def train(encoder, decoder, enc_optimizer, optimizer, criterion, len_targets, batch_size,
+def train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, len_targets, batch_size,
           inp, instr, target, attn=False):
   loss = 0
   optimizer.zero_grad()
@@ -20,14 +20,14 @@ def train(encoder, decoder, enc_optimizer, optimizer, criterion, len_targets, ba
   context = encoder_ht
   position_ids = generate_position_ids(batch_size, len_targets)
   if attn:
-    output, vis_attn = decoder(inp, position_ids, batch_size, attn=True,
+    output, vis_attn = decoder(inp, position_ids, batch_size, dataset.len_example, dataset.len_targets, dataset.len_instr, attn=True,
                                context=context)
     op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(len_targets):
       loss += criterion(op[c], target[:, c])
       # loss += criterion(output.view(batch_size, -1), target[:,c])
   else:
-    output, _ = decoder(inp, position_ids, batch_size)
+    output, _ = decoder(inp, position_ids, batch_size, dataset.len_example, dataset.len_targets, dataset.len_instr)
     op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(len_targets):
       loss += criterion(op[c], target[:, c])

@@ -2,7 +2,7 @@
 #Set job requirements
 #PBS -S /bin/bash
 #PBS -lnodes=1
-#PBS -lwalltime=24:00:00
+#PBS -lwalltime=72:00:00
 
 module load python/3.5.0
 module load eb

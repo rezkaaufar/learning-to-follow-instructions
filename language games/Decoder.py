@@ -25,12 +25,12 @@ class ConvDecoder(nn.Module):
     # for context-attended output
     self.linear_out = nn.Linear(hidden_size * 2, hidden_size)
 
-  def forward(self, inputs, position_inp, batch_size, attn=False, context=None):
+  def forward(self, inputs, position_inp, batch_size, len_ex, len_tgt, len_ins, attn=False, context=None):
     # Retrieving position and word embeddings
     position_embedding = self.position_embedding(position_inp)
     word_embedding = self.embed(inputs)
     # for visualization #
-    vis_attn = Variable(torch.zeros(self.len_block, batch_size, 1, self.len_instr)).cuda()
+    vis_attn = Variable(torch.zeros(len_ex, batch_size, 1, len_ins))
 
     # Applying dropout to the sum of position + word embeddings
     embedded = self.input_dropout(position_embedding + word_embedding)  # [batch_size, seq_len, embed_size]
@@ -49,7 +49,7 @@ class ConvDecoder(nn.Module):
       ht = cnn.transpose(1, 2)  # batch_size, seq_len, hidden_size
       attn = torch.bmm(ht, context.transpose(1, 2))
       # print(attn.size())
-      attn = F.softmax(attn.view(-1, self.len_instr), dim=1).view(batch_size, -1, self.len_instr)
+      attn = F.softmax(attn.view(-1, len_ins), dim=1).view(batch_size, -1, len_ins)
 
       # (batch, out_len, in_len) * (batch, in_len, dim) -> (batch, out_len, dim)
       mix = torch.bmm(attn, context)
@@ -66,4 +66,5 @@ class ConvDecoder(nn.Module):
     out_ht = cnn.transpose(1, 2)
     # print(out_ht.size())
     output = F.log_softmax(self.output(out_ht), dim=2)
+    #vis_attn = 0
     return output, vis_attn

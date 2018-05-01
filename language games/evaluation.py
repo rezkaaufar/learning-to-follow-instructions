@@ -24,7 +24,7 @@ def accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t, b
     if attn:
       pred_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
       tgt_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
-      output, vis_attn = decoder(inp, position_ids, batch_size, attn=True,
+      output, vis_attn = decoder(inp, position_ids, batch_size, dataset.len_example, dataset.len_targets, dataset.len_instr, attn=True,
                                  context=context)
       op = output.transpose(0, 1)  # seq_len, bs, class
       for c in range(dataset.len_targets):
@@ -66,7 +66,7 @@ def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_
     if attn:
       pred_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
       tgt_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
-      output, vis_attn = decoder(inp, position_ids, batch_size, attn=True,
+      output, vis_attn = decoder(inp, position_ids, batch_size, dataset.len_example, dataset.len_targets, dataset.len_instr, attn=True,
                                  context=context)
       op = output.transpose(0, 1)  # seq_len, bs, class
       for c in range(dataset.len_targets):
