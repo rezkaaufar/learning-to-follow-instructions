@@ -316,6 +316,47 @@ def train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, l
 
   return loss.data[0] / len_tgt
 
+def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
+              n_hidden, batch_size, lamb,
+              inp, instr, target, attn=False, eval=False):
+  loss = 0
+  enc_ext_optimizer.zero_grad()
+  decoder_optimizer.zero_grad()
+  buffer_size = inp.size(0)
+  for d in range(buffer_size):
+    hid = enc_ext.init_hidden(1)
+    cur_instr_len = instr.size(1)
+    cntxt = Variable(torch.zeros(cur_instr_len, 1, 1, n_hidden)).cuda()
+    for c in range(cur_instr_len):
+        if instr[d,c].data[0] < dataset.n_words:
+            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1), hid, 1, False, lamb)
+        else:
+            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1) % 20, hid, 1, True, lamb)
+        cntxt[c] = ht.contiguous()
+    cntxt = cntxt.squeeze(1).transpose(0,1)
+    context = cntxt
+    position_ids = generate_position_ids(batch_size, len_tgt)
+    if attn:
+        output, vis_attn = decoder(inp[d], position_ids, batch_size, len_ex, len_tgt, len_ins, attn=True,
+                             context=context)
+        op = output.transpose(0,1) # seq_len, bs, class
+        for c in range(len_tgt):
+            loss += criterion(op[c], target[d,c])
+        #loss += criterion(output.view(batch_size, -1), target[:,c])
+    else:
+        output, _ = decoder(inp[d], position_ids, batch_size)
+        op = output.transpose(0,1) # seq_len, bs, class
+        for c in range(len_tgt):
+            loss += criterion(op[c], target[d,c])
+    loss = loss / buffer_size
+
+  if not eval:
+    loss.backward()
+    enc_ext_optimizer.step()
+    decoder_optimizer.step()
+
+  return loss.data[0] / len_tgt
+
 def accuracy_test_data_ext(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
                            inps_mt, instrs_mt, targets_mt, all_words_comb, n_hidden, batch_size, lamb,
                            attn=False):

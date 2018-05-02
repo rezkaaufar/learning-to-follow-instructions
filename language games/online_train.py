@@ -58,14 +58,15 @@ words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev"]
 number_train = 20
 
 ## main ##
+picked_human_data = ["A3JI3B5GTVA95F", "A341XKSRZ58FJK", "b7PwKxNs7Tw"]
 inps, instrs, targets = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_train_nvl_"
                                               + which_data + "_50000.txt")
 inps_v, instrs_v, targets_v = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_valid_nvl_"
                                                     + which_data + "_50000.txt")
 inps_t, instrs_t, targets_t = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_test_nvl_"
                                                     + which_data + "_50000.txt")
-#inps_m, instrs_m, targets_m = hot.read_merged_data(cloud_str + "dataset/sida wang's/txt/A341XKSRZ58FJK.txt")
-inps_m, instrs_m, targets_m = hot.read_merged_data(cloud_str + "dataset/lang_games_data_artificial_train_online_nvl.txt")
+inps_m, instrs_m, targets_m = hot.read_merged_data(cloud_str + "dataset/sida wang's/txt/" + picked_human_data[2] + ".txt")
+#inps_m, instrs_m, targets_m = hot.read_merged_data(cloud_str + "dataset/lang_games_data_artificial_train_online_nvl.txt")
 
 dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
 dataset.randomize_data()
@@ -87,7 +88,7 @@ n_words_comb = len(all_words_comb)
 
 ## main run ##
 
-def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
+def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate, unfreezed=1):
   loss_thres = 100000000 # some big numbers
   loss_thres_cv = 100000000  # some big numbers
 
@@ -141,15 +142,23 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
 
     # freeze all weights except the connected one
     for name, params in enc_ext.named_parameters():
-      if name != "embedding_ext.weight" and name != "lamb" and name != "embedding.weight":
-        params.requires_grad = False
+      if unfreezed == 1:
+        if name != "embedding_ext.weight" and name != "lamb":
+          params.requires_grad = False
+      elif unfreezed == 2:
+        if name != "embedding_ext.weight" and name != "lamb" and name != "embedding.weight":
+          params.requires_grad = False
 
     if k==0:
       best_params = dict_params2["embedding_ext.weight"]
     if optimizer=="Adam":
       enc_ext_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
+      if unfreezed == 3:
+        decoder_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
     else:
       enc_ext_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
+      if unfreezed == 3:
+        decoder_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
 
     steps = len(inps_m) / batch_size
     iters = 0
@@ -174,9 +183,14 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
       len_tgt = len(targets_m[i].split(" "))
       inp, instr, target = hot.generate_batch_ext(dataset, start_index, len_ex, len_tgt,
                                             len_ins, all_words_comb, batch_size, inps_m, instrs_m, targets_m)
-      cv1_loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                                            len_ins, n_hidden, batch_size, lamb,
-                                            inp, instr, target, attn=attn, eval=True)
+      if unfreezed == 3:
+        cv1_loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                              len_ins, n_hidden, batch_size, lamb,
+                                              inp, instr, target, attn=attn, eval=True)
+      else:
+        cv1_loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                              len_ins, n_hidden, batch_size, lamb,
+                                              inp, instr, target, attn=attn, eval=True)
       loss_eval_cv1 += cv1_loss
       model_loss_cv.append(loss_eval_cv1)
 
@@ -192,32 +206,46 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
       buf_range = i+1
       current_buf = list(range(buf_range))
       if i < num_train_per_step:
-        inp_buffer = Variable(torch.zeros(buf_range, dataset.len_example).long()).cuda()
-        lab_buffer = Variable(torch.zeros(buf_range, dataset.len_targets).long()).cuda()
-        ins_buffer = Variable(torch.zeros(buf_range, dataset.len_instr).long()).cuda()
         for epoch in range(1, training_updates + 1):
           train_pick = random.sample(current_buf, buf_range)
+          len_ex = len(inps_m[train_pick[0]].split(" "))
+          len_ins = len(instrs_m[train_pick[0]].split(" "))
+          len_tgt = len(targets_m[train_pick[0]].split(" "))
+          inp_buffer = Variable(torch.zeros(num_train_per_step, len_ex).long()).cuda()
+          lab_buffer = Variable(torch.zeros(num_train_per_step, len_tgt).long()).cuda()
+          ins_buffer = Variable(torch.zeros(num_train_per_step, len_ins).long()).cuda()
           for j, tp in enumerate(train_pick):
             start_index = tp * batch_size
             # dataset, start_index, len_example, len_labels, len_instr, all_words_comb,
             # batch_size, inps, instrs, labels)
+            len_ex = len(inps_m[start_index].split(" "))
+            len_ins = len(instrs_m[start_index].split(" "))
+            len_tgt = len(targets_m[start_index].split(" "))
             inp, instr, target = hot.generate_batch_ext(dataset, start_index, len_ex, len_tgt,
                                             len_ins, all_words_comb, batch_size, inps_m, instrs_m, targets_m)
             inp_buffer[j] = inp
             ins_buffer[j] = instr
             lab_buffer[j] = target
-          loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                               len_ins, n_hidden, batch_size, lamb,
-                               inp_buffer, ins_buffer, lab_buffer, attn=attn)
+          if unfreezed == 3:
+            loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size, lamb,
+                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+          else:
+            loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size, lamb,
+                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
       else:
-        inp_buffer = Variable(torch.zeros(num_train_per_step, dataset.len_example).long()).cuda()
-        lab_buffer = Variable(torch.zeros(num_train_per_step, dataset.len_targets).long()).cuda()
-        ins_buffer = Variable(torch.zeros(num_train_per_step, dataset.len_instr).long()).cuda()
         for epoch in range(1, n_epochs + 1):
           train_pick = random.sample(current_buf, num_train_per_step)
+          len_ex = len(inps_m[train_pick[0]].split(" "))
+          len_ins = len(instrs_m[train_pick[0]].split(" "))
+          len_tgt = len(targets_m[train_pick[0]].split(" "))
+          inp_buffer = Variable(torch.zeros(num_train_per_step, len_ex).long()).cuda()
+          lab_buffer = Variable(torch.zeros(num_train_per_step, len_tgt).long()).cuda()
+          ins_buffer = Variable(torch.zeros(num_train_per_step, len_ins).long()).cuda()
           for j, tp in enumerate(train_pick):
             start_index = tp * batch_size
             # dataset, start_index, len_example, len_labels, len_instr, all_words_comb,
@@ -227,9 +255,14 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
             inp_buffer[j] = inp
             ins_buffer[j] = instr
             lab_buffer[j] = target
-          loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                               len_ins, n_hidden, batch_size, lamb,
-                               inp_buffer, ins_buffer, lab_buffer, attn=attn)
+          if unfreezed == 3:
+            loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size, lamb,
+                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+          else:
+            loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size, lamb,
+                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
@@ -282,6 +315,9 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
     # if online_accuracy_rst > highest_oa_rst:
     #   highest_oa_rst = online_accuracy_rst
 
+    for name, params in decoder.named_parameters():
+      print(name, params)
+
   ### final result ###
   #print("Final Online Accuracy {}".format(online_accuracy_best))
   # print("Final Test Seq Accuracy {}".format(acc_test_seq_best))
@@ -311,7 +347,7 @@ def run_train_optim(num_init, optimizer, lamb, training_updates, learning_rate):
   res_mlcv = []
   for i, el in enumerate(mlcvs):
     res_mlcv.append(pats[el,i])
-  print(pats)
+  #print(pats)
   # [fin online acc greedy, fin online acc 1cv, picked model greedy, model id highest greedy, picked model 1cv, model id highest 1cv]
   return [np.mean(res_ml), np.mean(res_mlcv), res_ml, res_mlcv, mls, mlcvs]
 
@@ -327,8 +363,8 @@ def run_random_search(k_trial, lamb):
     decoder = Decoder.ConvDecoder(dataset.n_letters, n_hidden, n_hidden, dataset.n_letters, dataset.len_example,
                                   kernel_size=3, n_layers=layers_conv, dropout_p=0.5, example_len=dataset.len_instr)
     encoder = Encoder.EncoderWord(dataset.n_words, n_hidden, n_layers=n_layers)
-    decoder.load_state_dict(torch.load(cloud_str + 'models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot_new.tar'))
-    encoder.load_state_dict(torch.load(cloud_str + 'models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot_new.tar'))
+    decoder.load_state_dict(torch.load(cloud_str + 'models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+    encoder.load_state_dict(torch.load(cloud_str + 'models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     decoder.cuda()
     encoder.cuda()
     criterion = nn.NLLLoss()
@@ -415,11 +451,11 @@ def run_random_search(k_trial, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-#conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50],[1e-2, 1e-3, 1e-4, 1e-5]]
+#conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50],[1e-2, 1e-3, 1e-4, 1e-5], [3]]
 #conf = [["Adam"], [True],[20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5]]
 #config = list(itertools.product(*conf))
-config = [('Adam', True, 50, 1e-2), ('Adam', True, 50, 1e-3)]
-k_model = 15
+config = [('Adam', True, 50, 1e-2, 2)]
+k_model = 7
 
 spec_name = ""
 for el in words_to_replace:
@@ -427,15 +463,15 @@ for el in words_to_replace:
 spec_name = spec_name[:-1]
 
 #f = open(cloud_str + "online-result/" + spec_name + ".txt", "w")
-f = open(cloud_str + "online-result/A341XKSRZ58FJK.txt", "w")
+#f = open(cloud_str + "online-result/" + picked_human_data[1] + "_unfreezed.txt", "w")
 for c in config:
   t_start = time.time()
-  res = run_train_optim(k_model, c[0], c[1], c[2], c[3])
+  res = run_train_optim(k_model, c[0], c[1], c[2], c[3], c[4])
   hyper_comb = " ".join(str(z) for z in c)
-  f.write(hyper_comb + "\n")
-  f.write(str(res) + "\n")
+  #f.write(hyper_comb + "\n")
+  #f.write(str(res) + "\n")
   print(hot.time_since(t_start))
-f.close()
+#f.close()
 
 ### trial 1cv ###
 #run_train_1cv(10)
