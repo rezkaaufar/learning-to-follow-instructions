@@ -1,4 +1,5 @@
 import torch
+torch.backends.cudnn.enabled = False
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -491,40 +492,77 @@ def run_random_search(k_trial, human_data, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
-#conf = [["Adam"], [True], [100], [1e-2], [1, 2, 3]]
-#conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
-config = list(itertools.product(*conf))
-config_rand = [True, False]
-#config = [('Adam', True, 10, 1e-2, 1)]
-k_model = 7
+do_sweep = False
+if do_sweep:
+    conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
+    #conf = [["Adam"], [True], [100], [1e-2], [1, 2, 3]]
+    #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
+    config = list(itertools.product(*conf))
+    config_rand = [True, False]
+    #config = [('Adam', True, 10, 1e-2, 1)]
+    k_model = 7
 
-picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
+    picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
 
-# spec_name = ""
-# for el in words_to_replace:
-#   spec_name += el + "_"
-# spec_name = spec_name[:-1]
+    # spec_name = ""
+    # for el in words_to_replace:
+    #   spec_name += el + "_"
+    # spec_name = spec_name[:-1]
 
-#f = open(cloud_str + "online-result/" + spec_name + ".txt", "w")
-for human_data in picked_human_data:
-  f = open(dirs + "/online-result/" + human_data + ".txt", "w")
-  for c in config:
+    #f = open(cloud_str + "online-result/" + spec_name + ".txt", "w")
+
+    for human_data in picked_human_data:
+      f = open(dirs + "/online-result/" + human_data + ".txt", "w")
+      for c in config:
+        t_start = time.time()
+        res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])
+        hyper_comb = " ".join(str(z) for z in c)
+        f.write(hyper_comb + "\n")
+        f.write(str(res) + "\n")
+        print(hot.time_since(t_start))
+      for c in config_rand:
+        t_start = time.time()
+        res = run_random_search(k_model+2, human_data, c)
+        f.write("Random " + str(c) + "\n")
+        f.write(str(res) + "\n")
+        print(hot.time_since(t_start))
+      f.close()
+else:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--optim')
+    ap.add_argument('--lamb', type=int)
+    ap.add_argument('--steps', type=int)
+    ap.add_argument('--lr', type=float)
+    ap.add_argument('--k', default=7, type=int)
+    ap.add_argument('--unfreezed', type=int, choices=[1,2,3])
+    ap.add_argument('--learner', choices=['random', 'gd'])
+    ap.add_argument('--data')
+
+    args =  ap.parse_args()
+
+    fn = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
+    f = open(dirs + "/online-result/" + fn + ".txt", 'w')
+
+    if args.lamb in ['yes', '1', 'true', 'True']:
+        args.lamb = True
+    else:
+        args.lamb = False
+
     t_start = time.time()
-    res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])
-    hyper_comb = " ".join(str(z) for z in c)
-    f.write(hyper_comb + "\n")
-    f.write(str(res) + "\n")
-    print(hot.time_since(t_start))
-  for c in config_rand:
-    t_start = time.time()
-    res = run_random_search(k_model+2, human_data, c)
-    f.write("Random " + str(c) + "\n")
-    f.write(str(res) + "\n")
-    print(hot.time_since(t_start))
-  f.close()
 
+    if args.learner == 'random':
+        res = run_random(args.k+2, args.data, args.lamb)
+        f.write("Random " + str(c) + "\n")
+        f.write(str(res) + "\n")
+    else:
+        res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed)
+        #hyper_comb = " ".join(str(z) for z in c)
+        f.write(fn + "\n")
+        f.write(str(res) + "\n")
 
+    print(hot.time_since(t_start))
+    f.close()
 ### trial 1cv ###
 #run_train_1cv(10)
 
