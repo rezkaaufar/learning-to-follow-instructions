@@ -189,21 +189,20 @@ def write_merged_data(test_path, train_path, words, words_to_replace, number_tra
   fw.close()
   #return inps_m, instrs_m, targets_m
 
-
-which_data = "utter_blocks"
-words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even", "leftmost"]
-words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev", "lftmst"]
-wtr = [["remove", "brown", "cyan", "2nd", "4th", "6th", "odd", "every", "rightmost", "at", "tile"]]
-wrs = [["rmv", "braun", "cyaan", "2", "4", "6", "ot", "evr", "rms", "di", "sqr"]]
-conf = [["remove"], ["brown", "cyan"], ["2nd", "4th", "6th", "odd", "every"]]
-conf_rep = [["rmv"], ["braun", "cyaan"], ["2", "4", "6", "ot", "evr"]]
-config = list(itertools.product(*conf))
-config_rep = list(itertools.product(*conf_rep))
-number_train = 20
-for el, el_rep in zip(wtr, wrs):
-  write_merged_data("dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt",
-                    "dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt",
-                     el, el_rep, number_train)
+# which_data = "utter_blocks"
+# words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even", "leftmost"]
+# words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev", "lftmst"]
+# wtr = [["remove", "brown", "cyan", "2nd", "4th", "6th", "odd", "every", "rightmost", "at", "to", "tile"]]
+# wrs = [["rmv", "braun", "cyaan", "2", "4", "6", "ot", "evr", "rms", "di", "ke", "sqr"]]
+# conf = [["remove"], ["brown", "cyan"], ["2nd", "4th", "6th", "odd", "every"]]
+# conf_rep = [["rmv"], ["braun", "cyaan"], ["2", "4", "6", "ot", "evr"]]
+# config = list(itertools.product(*conf))
+# config_rep = list(itertools.product(*conf_rep))
+# number_train = 20
+# for el, el_rep in zip(wtr, wrs):
+#   write_merged_data("dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt",
+#                     "dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt",
+#                      el, el_rep, number_train)
 
 def read_merged_data(online_path):
   inpss = []

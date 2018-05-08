@@ -499,11 +499,12 @@ def run_random_search(k_trial, human_data, lamb):
 do_sweep = True
 if do_sweep:
     #conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
+    conf = [["Adam", "SGD"], [True, False], [5, 10, 20, 50, 100], [1e-2, 1e-3, 1e-4, 1e-5], [4]]
     #conf = [["Adam"], [True], [100], [1e-2], [1, 2, 3]]
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
-    #config = list(itertools.product(*conf))
+    config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 50, 1e-2, 4), ('Adam', False, 100, 1e-2, 4)]
+    #config = [('Adam', True, 50, 1e-2, 4), ('Adam', False, 100, 1e-2, 4)]
     k_model = 7
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
@@ -541,7 +542,7 @@ else:
     ap.add_argument('--steps', type=int)
     ap.add_argument('--lr', type=float)
     ap.add_argument('--k', default=7, type=int)
-    ap.add_argument('--unfreezed', type=int, choices=[1,2,3])
+    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4])
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--data')
 
