@@ -73,6 +73,8 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
                                                       + which_data + "_50000.txt")
   inps_m, instrs_m, targets_m = hot.read_merged_data(
     dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(
+  #   dirs + "/dataset/online_test/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/lang_games_data_artificial_train_online_nvl.txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
@@ -141,29 +143,29 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     params2 = enc_ext.named_parameters()
 
     dict_params2 = dict(params2)
+    if unfreezed != 4:
+      for name1, param1 in params1:
+        if name1 in dict_params2:
+          dict_params2[name1].data.copy_(param1.data)
 
-    for name1, param1 in params1:
-      if name1 in dict_params2:
-        dict_params2[name1].data.copy_(param1.data)
-
-    # freeze all weights except the connected one
-    for name, params in enc_ext.named_parameters():
-      if unfreezed == 1:
-        if name != "embedding_ext.weight" and name != "lamb":
-          params.requires_grad = False
-      elif unfreezed == 2:
-        if name != "embedding_ext.weight" and name != "lamb" and name != "embedding.weight":
-          params.requires_grad = False
+      # freeze all weights except the connected one
+      for name, params in enc_ext.named_parameters():
+        if unfreezed == 1:
+          if name != "embedding_ext.weight" and name != "lamb":
+            params.requires_grad = False
+        elif unfreezed == 2:
+          if name != "embedding_ext.weight" and name != "lamb" and name != "embedding.weight":
+            params.requires_grad = False
 
     if k==0:
       best_params = dict_params2["embedding_ext.weight"]
     if optimizer=="Adam":
       enc_ext_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
-      if unfreezed == 3:
+      if unfreezed == 3 or unfreezed == 4:
         decoder_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
     else:
       enc_ext_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
-      if unfreezed == 3:
+      if unfreezed == 3 or unfreezed == 4:
         decoder_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
 
     steps = len(inps_m) / batch_size
@@ -370,6 +372,8 @@ def run_random_search(k_trial, human_data, lamb):
                                                       + which_data + "_50000.txt")
   inps_m, instrs_m, targets_m = hot.read_merged_data(
     dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(
+  #   dirs + "/dataset/online_test/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/lang_games_data_artificial_train_online_nvl.txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
@@ -492,14 +496,14 @@ def run_random_search(k_trial, human_data, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-do_sweep = False
+do_sweep = True
 if do_sweep:
-    conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
+    #conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
     #conf = [["Adam"], [True], [100], [1e-2], [1, 2, 3]]
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
-    config = list(itertools.product(*conf))
-    config_rand = [True, False]
-    #config = [('Adam', True, 10, 1e-2, 1)]
+    #config = list(itertools.product(*conf))
+    #config_rand = [True, False]
+    config = [('Adam', True, 50, 1e-2, 4), ('Adam', False, 100, 1e-2, 4)]
     k_model = 7
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
@@ -510,9 +514,11 @@ if do_sweep:
     # spec_name = spec_name[:-1]
 
     #f = open(cloud_str + "online-result/" + spec_name + ".txt", "w")
+    file = open(dirs + "/out.txt", "r")
 
     for human_data in picked_human_data:
-      f = open(dirs + "/online-result/" + human_data + ".txt", "w")
+      #human_data = line.replace("\n","")
+      f = open(dirs + "/online-result/" + human_data + "_random_init.txt", "w")
       for c in config:
         t_start = time.time()
         res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])
@@ -520,12 +526,12 @@ if do_sweep:
         f.write(hyper_comb + "\n")
         f.write(str(res) + "\n")
         print(hot.time_since(t_start))
-      for c in config_rand:
-        t_start = time.time()
-        res = run_random_search(k_model+2, human_data, c)
-        f.write("Random " + str(c) + "\n")
-        f.write(str(res) + "\n")
-        print(hot.time_since(t_start))
+      # for c in config_rand:
+      #   t_start = time.time()
+      #   res = run_random_search(k_model+2, human_data, c)
+      #   f.write("Random " + str(c) + "\n")
+      #   f.write(str(res) + "\n")
+      #   print(hot.time_since(t_start))
       f.close()
 else:
     import argparse
@@ -552,8 +558,8 @@ else:
     t_start = time.time()
 
     if args.learner == 'random':
-        res = run_random(args.k+2, args.data, args.lamb)
-        f.write("Random " + str(c) + "\n")
+        res = run_random_search(args.k+2, args.data, args.lamb)
+        f.write("Random " + str(args.lamb) + "\n")
         f.write(str(res) + "\n")
     else:
         res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed)

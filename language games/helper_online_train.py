@@ -129,7 +129,9 @@ def read_online_data(test_path, train_path, words, words_to_replace, number_trai
   return inps_m, instrs_m, targets_m, inps_rst, instrs_rst, targets_rst, inps_mt, instrs_mt, targets_mt
 
 def write_merged_data(test_path, train_path, words, words_to_replace, number_train):
-  fw = open("./lang_games_data_artificial_train_online_nvl.txt", "w")
+  name = "_".join(str(z) for z in words)
+  fw = open("./dataset/online_test/all.txt", "w")
+  #fw = open("./dataset/online_test/" + name + ".txt", "w")
   inpss = []
   distinct_instr = set()
   with open(train_path, "r") as f:
@@ -187,13 +189,21 @@ def write_merged_data(test_path, train_path, words, words_to_replace, number_tra
   fw.close()
   #return inps_m, instrs_m, targets_m
 
-# which_data = "utter_blocks"
-# words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even"]
-# words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev"]
-# number_train = 20
-# write_merged_data("dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt",
-#                   "dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt",
-#                    words_to_replace, words_replacement, number_train)
+
+which_data = "utter_blocks"
+words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even", "leftmost"]
+words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev", "lftmst"]
+wtr = [["remove", "brown", "cyan", "2nd", "4th", "6th", "odd", "every", "rightmost", "at", "tile"]]
+wrs = [["rmv", "braun", "cyaan", "2", "4", "6", "ot", "evr", "rms", "di", "sqr"]]
+conf = [["remove"], ["brown", "cyan"], ["2nd", "4th", "6th", "odd", "every"]]
+conf_rep = [["rmv"], ["braun", "cyaan"], ["2", "4", "6", "ot", "evr"]]
+config = list(itertools.product(*conf))
+config_rep = list(itertools.product(*conf_rep))
+number_train = 20
+for el, el_rep in zip(wtr, wrs):
+  write_merged_data("dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt",
+                    "dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt",
+                     el, el_rep, number_train)
 
 def read_merged_data(online_path):
   inpss = []
