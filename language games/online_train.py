@@ -552,8 +552,8 @@ else:
     t_start = time.time()
 
     if args.learner == 'random':
-        res = run_random(args.k+2, args.data, args.lamb)
-        f.write("Random " + str(c) + "\n")
+        res = run_random_search(args.k+2, args.data, args.lamb)
+        f.write("Random " + fn + "\n")
         f.write(str(res) + "\n")
     else:
         res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed)
