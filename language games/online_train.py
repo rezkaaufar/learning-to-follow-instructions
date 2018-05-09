@@ -131,8 +131,9 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     decoder = Decoder.ConvDecoder(dataset.n_letters, n_hidden, n_hidden, dataset.n_letters, dataset.len_example,
                                   kernel_size=3, n_layers=layers_conv, dropout_p=0.5, example_len=dataset.len_instr)
     encoder = Encoder.EncoderWord(dataset.n_words, n_hidden, n_layers=n_layers)
-    decoder.load_state_dict(
-      torch.load(dirs + '/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+    if unfreezed != 5:
+      decoder.load_state_dict(
+        torch.load(dirs + '/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     encoder.load_state_dict(
       torch.load(dirs + '/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     decoder.cuda()
@@ -161,11 +162,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       best_params = dict_params2["embedding_ext.weight"]
     if optimizer=="Adam":
       enc_ext_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
-      if unfreezed == 3 or unfreezed == 4:
+      if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
         decoder_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
     else:
       enc_ext_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, enc_ext.parameters()), lr=learning_rate)
-      if unfreezed == 3 or unfreezed == 4:
+      if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
         decoder_optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, decoder.parameters()), lr=learning_rate)
 
     steps = len(inps_m) / batch_size
@@ -191,7 +192,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       len_tgt = len(targets_m[i].split(" "))
       inp, instr, target = hot.generate_batch_ext(dataset, start_index, len_ex, len_tgt,
                                             len_ins, all_words_comb, batch_size, inps_m, instrs_m, targets_m)
-      if unfreezed == 3:
+      if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
         cv1_loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                               len_ins, n_hidden, batch_size, lamb,
                                               inp, instr, target, attn=attn, eval=True)
@@ -234,7 +235,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
             inp_buffer[j] = inp
             ins_buffer[j] = instr
             lab_buffer[j] = target
-          if unfreezed == 3:
+          if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size, lamb,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
@@ -263,7 +264,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
             inp_buffer[j] = inp
             ins_buffer[j] = instr
             lab_buffer[j] = target
-          if unfreezed == 3:
+          if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size, lamb,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
