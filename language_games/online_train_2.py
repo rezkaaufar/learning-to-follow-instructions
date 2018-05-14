@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import time
 import Decoder
-import Encoder
+import encoder_attn
 import data_loader
 import helper_online_train as hot
 import train
@@ -125,17 +125,17 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
   # oa_rsts = []
 
   for k in range(num_init):
-    enc_ext = hot.EncoderExtended(dataset.n_words, n_words_ext, n_hidden, n_layers=n_layers)
+    enc_ext = hot.Encoder2Extended(dataset.n_words, n_words_ext, n_hidden)
     enc_ext.cuda()
     torch.nn.Module.dump_patches = True
     decoder = Decoder.ConvDecoder(dataset.n_letters, n_hidden, n_hidden, dataset.n_letters, dataset.len_example,
                                   kernel_size=3, n_layers=layers_conv, dropout_p=0.5, example_len=dataset.len_instr)
-    encoder = Encoder.EncoderWord(dataset.n_words, n_hidden, n_layers=n_layers)
+    encoder = encoder_attn.Encoder(dataset.n_words, n_hidden)
     if unfreezed != 5:
       decoder.load_state_dict(
-        torch.load(dirs + '/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+        torch.load(dirs + '/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     encoder.load_state_dict(
-      torch.load(dirs + '/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+      torch.load(dirs + '/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     decoder.cuda()
     encoder.cuda()
     criterion = nn.NLLLoss()
@@ -152,10 +152,10 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       # freeze all weights except the connected one
       for name, params in enc_ext.named_parameters():
         if unfreezed == 1:
-          if name != "embedding_ext.weight" and name != "lamb":
+          if name != "embedding_ext.weight":
             params.requires_grad = False
         elif unfreezed == 2:
-          if name != "embedding_ext.weight" and name != "lamb" and name != "embedding.weight":
+          if name != "embedding_ext.weight" and name != "embedding.weight":
             params.requires_grad = False
 
     if k==0:
@@ -193,19 +193,19 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       inp, instr, target = hot.generate_batch_ext(dataset, start_index, len_ex, len_tgt,
                                             len_ins, all_words_comb, batch_size, inps_m, instrs_m, targets_m)
       if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
-        cv1_loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
-                                              len_ins, n_hidden, batch_size, lamb,
+        cv1_loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                              len_ins, n_hidden, batch_size,
                                               inp, instr, target, attn=attn, eval=True)
       else:
-        cv1_loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                                              len_ins, n_hidden, batch_size, lamb,
+        cv1_loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                              len_ins, n_hidden, batch_size,
                                               inp, instr, target, attn=attn, eval=True)
       loss_eval_cv1 += cv1_loss
       model_loss_cv.append(loss_eval_cv1)
 
-      acc, acc_seq = hot.accuracy_test_data_ext(dataset, len_ex, len_tgt,
+      acc, acc_seq = hot.accuracy_test_data_ext_2(dataset, len_ex, len_tgt,
                                             len_ins, enc_ext, decoder, [inps_m[i]], [instrs_m[i]], [targets_m[i]],
-                                            all_words_comb, n_hidden, batch_size, lamb, attn=attn)
+                                            all_words_comb, n_hidden, batch_size, attn=attn)
       online_accuracy += acc_seq
       predicted_at_t.append(acc_seq)
       ### [CV END] ###
@@ -236,12 +236,12 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
             ins_buffer[j] = instr
             lab_buffer[j] = target
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
-            loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
-                                 len_ins, n_hidden, batch_size, lamb,
+            loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
           else:
-            loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                                 len_ins, n_hidden, batch_size, lamb,
+            loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
           loss_eval += loss
           iters += 1
@@ -265,12 +265,12 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
             ins_buffer[j] = instr
             lab_buffer[j] = target
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
-            loss = hot.train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
-                                 len_ins, n_hidden, batch_size, lamb,
+            loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
           else:
-            loss = hot.train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
-                                 len_ins, n_hidden, batch_size, lamb,
+            loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
+                                 len_ins, n_hidden, batch_size,
                                  inp_buffer, ins_buffer, lab_buffer, attn=attn)
           loss_eval += loss
           iters += 1
@@ -402,14 +402,14 @@ def run_random_search(k_trial, human_data, lamb):
   max_avg, max_avg_online = 0, 0
   predicted_at_ts = []
   for k in range(k_trial):
-    enc_ext = hot.EncoderExtended(dataset.n_words, n_words_ext, n_hidden, n_layers=n_layers)
+    enc_ext = hot.Encoder2Extended(dataset.n_words, n_words_ext, n_hidden)
     enc_ext.cuda()
     torch.nn.Module.dump_patches = True
     decoder = Decoder.ConvDecoder(dataset.n_letters, n_hidden, n_hidden, dataset.n_letters, dataset.len_example,
                                   kernel_size=3, n_layers=layers_conv, dropout_p=0.5, example_len=dataset.len_instr)
-    encoder = Encoder.EncoderWord(dataset.n_words, n_hidden, n_layers=n_layers)
-    decoder.load_state_dict(torch.load(dirs + '/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
-    encoder.load_state_dict(torch.load(dirs + '/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+    encoder = encoder_attn.Encoder(dataset.n_words, n_hidden)
+    decoder.load_state_dict(torch.load(dirs + '/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+    encoder.load_state_dict(torch.load(dirs + '/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
     decoder.cuda()
     encoder.cuda()
     criterion = nn.NLLLoss()
@@ -505,7 +505,7 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 50, 1e-2, 1), ('Adam', False, 100, 1e-2, 1)]
+    config = [('Adam', True, 50, 1e-2, 3), ('Adam', False, 100, 1e-2, 3)]
     k_model = 7
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
@@ -520,7 +520,7 @@ if do_sweep:
 
     for human_data in picked_human_data:
       #human_data = line.replace("\n","")
-      f = open(dirs + "/online-result/" + human_data + ".txt", "w")
+      f = open(dirs + "/online-result/" + human_data + "unfreezed_2.txt", "w")
       for c in config:
         t_start = time.time()
         res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])

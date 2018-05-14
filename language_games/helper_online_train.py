@@ -286,45 +286,6 @@ def generate_position_ids(batch_size, len_targets):
     pos_tensor[i] = torch.LongTensor(range(0, len_targets))
   return Variable(pos_tensor).cuda()
 
-def train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
-              n_hidden, batch_size, lamb,
-              inp, instr, target, attn=False, eval=False):
-  loss = 0
-  enc_ext_optimizer.zero_grad()
-  buffer_size = inp.size(0)
-  for d in range(buffer_size):
-    hid = enc_ext.init_hidden(1)
-    cur_instr_len = instr.size(1)
-    cntxt = Variable(torch.zeros(cur_instr_len, 1, 1, n_hidden)).cuda()
-    for c in range(cur_instr_len):
-        if instr[d,c].data[0] < dataset.n_words:
-            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1), hid, 1, False, lamb)
-        else:
-            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1) % 20, hid, 1, True, lamb)
-        cntxt[c] = ht.contiguous()
-    cntxt = cntxt.squeeze(1).transpose(0,1)
-    context = cntxt
-    position_ids = generate_position_ids(batch_size, len_tgt)
-    if attn:
-        output, vis_attn = decoder(inp[d], position_ids, batch_size, len_ex, len_tgt, len_ins, attn=True,
-                             context=context)
-        op = output.transpose(0,1) # seq_len, bs, class
-        for c in range(len_tgt):
-            loss += criterion(op[c], target[d,c])
-        #loss += criterion(output.view(batch_size, -1), target[:,c])
-    else:
-        output, _ = decoder(inp[d], position_ids, batch_size)
-        op = output.transpose(0,1) # seq_len, bs, class
-        for c in range(len_tgt):
-            loss += criterion(op[c], target[d,c])
-    loss = loss / buffer_size
-
-  if not eval:
-    loss.backward()
-    enc_ext_optimizer.step()
-
-  return loss.data[0] / len_tgt
-
 def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
               n_hidden, batch_size, lamb,
               inp, instr, target, attn=False, eval=False):
@@ -366,6 +327,45 @@ def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, 
 
   return loss.data[0] / len_tgt
 
+def train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
+              n_hidden, batch_size, lamb,
+              inp, instr, target, attn=False, eval=False):
+  loss = 0
+  enc_ext_optimizer.zero_grad()
+  buffer_size = inp.size(0)
+  for d in range(buffer_size):
+    hid = enc_ext.init_hidden(1)
+    cur_instr_len = instr.size(1)
+    cntxt = Variable(torch.zeros(cur_instr_len, 1, 1, n_hidden)).cuda()
+    for c in range(cur_instr_len):
+        if instr[d,c].data[0] < dataset.n_words:
+            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1), hid, 1, False, lamb)
+        else:
+            ht, hid, _ = enc_ext(instr[d,c].unsqueeze(1) % 20, hid, 1, True, lamb)
+        cntxt[c] = ht.contiguous()
+    cntxt = cntxt.squeeze(1).transpose(0,1)
+    context = cntxt
+    position_ids = generate_position_ids(batch_size, len_tgt)
+    if attn:
+        output, vis_attn = decoder(inp[d], position_ids, batch_size, len_ex, len_tgt, len_ins, attn=True,
+                             context=context)
+        op = output.transpose(0,1) # seq_len, bs, class
+        for c in range(len_tgt):
+            loss += criterion(op[c], target[d,c])
+        #loss += criterion(output.view(batch_size, -1), target[:,c])
+    else:
+        output, _ = decoder(inp[d], position_ids, batch_size)
+        op = output.transpose(0,1) # seq_len, bs, class
+        for c in range(len_tgt):
+            loss += criterion(op[c], target[d,c])
+    loss = loss / buffer_size
+
+  if not eval:
+    loss.backward()
+    enc_ext_optimizer.step()
+
+  return loss.data[0] / len_tgt
+
 def accuracy_test_data_ext(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
                            inps_mt, instrs_mt, targets_mt, all_words_comb, n_hidden, batch_size, lamb,
                            attn=False):
@@ -403,7 +403,7 @@ def accuracy_test_data_ext(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
         pred_seq[c] = op[c].max(1)[1]
         accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
         acc_tot += accuracy.data[0]
-      truth = Variable(torch.ones(batch_size)).cuda() * 23
+      truth = Variable(torch.ones(batch_size)).cuda() * len_tgt
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
     else:
@@ -416,7 +416,167 @@ def accuracy_test_data_ext(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
         pred_seq[c] = op[c].max(1)[1]
         accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
         acc_tot += accuracy.data[0]
-      truth = Variable(torch.ones(batch_size)).cuda() * 23
+      truth = Variable(torch.ones(batch_size)).cuda() * len_tgt
+      acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
+      # print((pred_seq == tgt_seq).float().sum(dim=0))
+  return acc_tot / (it * len_tgt), acc_tot_seq / it
+
+### helper for train attn ###
+class Encoder2Extended(nn.Module):
+  def __init__(self, input_size, ext_input_size, hidden_size):
+    super(Encoder2Extended, self).__init__()
+
+    self.input_size = input_size
+    self.hidden_size = hidden_size
+
+    self.embedding = nn.Embedding(input_size, hidden_size)
+    self.embedding_ext = nn.Embedding(ext_input_size, hidden_size)
+    self.attention_1 = nn.Parameter(torch.rand(1, hidden_size))
+    self.attention_2 = nn.Parameter(torch.rand(1, hidden_size))
+    self.attention_3 = nn.Parameter(torch.rand(1, hidden_size))
+
+  def forward(self, inputs, batch_size, new_emb):
+    # Note: we run this all at once (over the whole input sequence)
+    if new_emb:
+      embedded = self.embedding_ext(inputs)  # [batch_size, seq_len, hidden_size]
+    else:
+      embedded = self.embedding(inputs)  # [batch_size, seq_len, hidden_size]
+    alpha_1 = torch.bmm(embedded, self.attention_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
+    result_1 = torch.sum(alpha_1 * embedded, dim=1)
+    alpha_2 = torch.bmm(embedded, self.attention_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
+    result_2 = torch.sum(alpha_2 * embedded, dim=1)
+    alpha_3 = torch.bmm(embedded, self.attention_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
+    result_3 = torch.sum(alpha_3 * embedded, dim=1)
+    return torch.cat([result_1.unsqueeze(1), result_2.unsqueeze(1), result_3.unsqueeze(1)], dim=1)
+
+# training
+def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
+              n_hidden, batch_size, inp, instr, target, attn=False, eval=False):
+  loss = 0
+  enc_ext_optimizer.zero_grad()
+  command_len = 3
+
+  cntxt = Variable(torch.zeros(len_ins, 1, 3, n_hidden)).cuda()
+  for c in range(len_ins):
+    if instr[0, c].data[0] < dataset.n_words:
+      ht = enc_ext(instr[0, c].unsqueeze(1), 1, False)
+    else:
+      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, True)
+    cntxt[c] = ht.contiguous()
+  cntxt = cntxt.squeeze(1).transpose(0, 1)
+
+  context = torch.sum(cntxt, dim=1).unsqueeze(0)
+  # context = cntxt
+  position_ids = generate_position_ids(batch_size, len_ex)
+  if attn:
+    output, vis_attn = decoder(inp, position_ids, batch_size, len_ex, len_tgt, command_len, attn=True,
+                               context=context)
+    op = output.transpose(0, 1)  # seq_len, bs, class
+    for c in range(len_ex):
+      loss += criterion(op[c], target[:, c])
+      # loss += criterion(output.view(batch_size, -1), target[:,c])
+  else:
+    output, _ = decoder(inp, position_ids, batch_size, len_ex, len_ins, len_tgt)
+    op = output.transpose(0, 1)  # seq_len, bs, class
+    for c in range(len_ex):
+      loss += criterion(op[c], target[:, c])
+  if not eval:
+    loss.backward()
+    enc_ext_optimizer.step()
+
+  return loss.data[0] / len_tgt
+
+def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
+              n_hidden, batch_size, inp, instr, target, attn=False, eval=False):
+  loss = 0
+  enc_ext_optimizer.zero_grad()
+  decoder_optimizer.zero_grad()
+  command_len = 3
+
+  cntxt = Variable(torch.zeros(len_ins, 1, 3, n_hidden)).cuda()
+  for c in range(len_ins):
+    if instr[0, c].data[0] < dataset.n_words:
+      ht = enc_ext(instr[0, c].unsqueeze(1), 1, False)
+    else:
+      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, True)
+    cntxt[c] = ht.contiguous()
+  cntxt = cntxt.squeeze(1).transpose(0, 1)
+
+  context = torch.sum(cntxt, dim=1).unsqueeze(0)
+  # context = cntxt
+  position_ids = generate_position_ids(batch_size, len_ex)
+  if attn:
+    output, vis_attn = decoder(inp, position_ids, batch_size, len_ex, len_tgt, command_len, attn=True,
+                               context=context)
+    op = output.transpose(0, 1)  # seq_len, bs, class
+    for c in range(len_ex):
+      loss += criterion(op[c], target[:, c])
+      # loss += criterion(output.view(batch_size, -1), target[:,c])
+  else:
+    output, _ = decoder(inp, position_ids, batch_size, len_ex, len_ins, len_tgt)
+    op = output.transpose(0, 1)  # seq_len, bs, class
+    for c in range(len_ex):
+      loss += criterion(op[c], target[:, c])
+  if not eval:
+    loss.backward()
+    enc_ext_optimizer.step()
+    decoder_optimizer.zero_grad()
+
+  return loss.data[0] / len_tgt
+
+def accuracy_test_data_ext_2(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
+                           inps_mt, instrs_mt, targets_mt, all_words_comb, n_hidden, batch_size,
+                           attn=False):
+  it = len(inps_mt) / batch_size
+  acc_tot = 0
+  acc_tot_seq = 0
+  command_len = 3
+  for i in range(int(it)):
+    decoder.eval()
+    enc_ext.eval()
+    start_index = i * batch_size
+    # len_ex = len(inps_mt[start_index].split(" "))
+    # len_ins = len(instrs_mt[start_index].split(" "))
+    # len_tgt = len(targets_mt[start_index].split(" "))
+    inp, instr, target = generate_batch_ext(dataset, start_index, len_ex, len_tgt, len_ins, all_words_comb,
+                                            batch_size, inps_mt, instrs_mt, targets_mt)
+    cntxt = Variable(torch.zeros(len_ins, batch_size, 3, n_hidden)).cuda()
+    for c in range(len_ins):
+      if instr[:, c].data[0] < dataset.n_words:
+        ht = enc_ext(instr[:, c].unsqueeze(1), batch_size, False)
+      else:
+        ht = enc_ext(instr[:, c].unsqueeze(1) % 20, batch_size, True)
+      cntxt[c] = ht.contiguous()
+    cntxt = cntxt.squeeze(1).transpose(0, 1)
+    context = torch.sum(cntxt, dim=1).unsqueeze(0)
+    # ht, hid = enc_ext(instr, hid, batch_size, False)
+    # context = ht
+    position_ids = generate_position_ids(batch_size, len_ex)
+    if attn:
+      pred_seq = Variable(torch.zeros(len_tgt, batch_size)).cuda()
+      tgt_seq = Variable(torch.zeros(len_tgt, batch_size)).cuda()
+      output, vis_attn = decoder(inp, position_ids, batch_size, len_ex, len_tgt, command_len, attn=True,
+                                 context=context)
+      op = output.transpose(0, 1)  # seq_len, bs, class
+      for c in range(len_tgt):
+        tgt_seq[c] = target[:, c]
+        pred_seq[c] = op[c].max(1)[1]
+        accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
+        acc_tot += accuracy.data[0]
+      truth = Variable(torch.ones(batch_size)).cuda() * len_tgt
+      acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
+      # print((pred_seq == tgt_seq).float().sum(dim=0))
+    else:
+      pred_seq = Variable(torch.zeros(len_tgt, batch_size)).cuda()
+      tgt_seq = Variable(torch.zeros(len_tgt, batch_size)).cuda()
+      output, _ = decoder(inp, position_ids, batch_size)
+      op = output.transpose(0, 1)  # seq_len, bs, class
+      for c in range(len_tgt):
+        tgt_seq[c] = target[:, c]
+        pred_seq[c] = op[c].max(1)[1]
+        accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
+        acc_tot += accuracy.data[0]
+      truth = Variable(torch.ones(batch_size)).cuda() * len_tgt
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
   return acc_tot / (it * len_tgt), acc_tot_seq / it
