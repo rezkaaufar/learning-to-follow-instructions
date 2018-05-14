@@ -497,7 +497,7 @@ def run_random_search(k_trial, human_data, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-do_sweep = True
+do_sweep = False
 if do_sweep:
     #conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
     #conf = [["Adam", "SGD"], [True, False], [5, 10, 20, 50, 100], [1e-2, 1e-3, 1e-4, 1e-5], [4]]
@@ -543,7 +543,7 @@ else:
     ap.add_argument('--steps', type=int)
     ap.add_argument('--lr', type=float)
     ap.add_argument('--k', default=7, type=int)
-    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4])
+    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5])
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--data')
 
