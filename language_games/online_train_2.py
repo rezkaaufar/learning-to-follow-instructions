@@ -543,14 +543,14 @@ else:
     ap.add_argument('--steps', type=int)
     ap.add_argument('--lr', type=float)
     ap.add_argument('--k', default=7, type=int)
-    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4])
+    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5])
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--data')
 
     args =  ap.parse_args()
 
     fn = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-    f = open(dirs + "/online-result/" + fn + ".txt", 'w')
+    f = open(dirs + "/online-result/model2/" + fn + ".txt", 'w')
 
     if args.lamb in ['yes', '1', 'true', 'True']:
         args.lamb = True
