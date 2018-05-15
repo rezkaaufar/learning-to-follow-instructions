@@ -10,6 +10,8 @@ import train
 import evaluation
 import math
 import itertools
+import os
+import encoder_attn
 from tensorboardX import SummaryWriter
 
 ## hyperparameters ##
@@ -46,6 +48,8 @@ if bi:
 
 print_every = 200
 load = False
+
+dirs = os.path.dirname(os.path.abspath(__file__))
 
 ## helper function ##
 def time_since(since):
@@ -147,4 +151,76 @@ def run_train(config):
     writer.export_scalars_to_json(cloud_str + "json/"+ model_name +".json")
     writer.close()
 
-run_train(config)
+#run_train(config)
+
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
+ap.add_argument('--dropout_rate', type=float, choices=[0, 0.2, 0.5])
+ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
+
+args = ap.parse_args()
+
+model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
+model_name = "Seq2Conv_50000_nvl_" + which_data + "_" + model_name
+
+t_start = time.time()
+
+decoder = Decoder.ConvDecoder(dataset.n_letters, args.hidden_size, args.hidden_size, dataset.n_letters, dataset.len_example,
+                              kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate, example_len=dataset.len_instr)
+encoder = encoder_attn.Encoder(dataset.n_words, args.hidden_size)
+enc_optimizer = torch.optim.Adam(encoder.parameters(), lr=lr)
+optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
+criterion = nn.NLLLoss()
+decoder.cuda()
+encoder.cuda()
+start = time.time()
+iters = 0
+losses, accs, accs_tr = [], [], []
+
+writer = SummaryWriter()
+
+cur_best = 0
+for epoch in range(1, n_epochs + 1):
+  decoder.train(True)
+  encoder.train(True)
+  steps = len(inps) / batch_size
+  for i in range(int(steps)):
+    start_index = i * batch_size
+    inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
+    loss = train.train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
+                       inp, instr, target, attn=attn)
+    writer.add_scalar('data/loss', loss, iters)
+    losses.append(loss)
+    iters += 1
+  acc, acc_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
+                                               batch_size, attn=attn)
+  acc_val, acc_val_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
+                                                       batch_size, attn=attn)
+  acc_tr, acc_tr_seq = evaluation.accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets,
+                                                      batch_size, attn=attn)
+  writer.add_scalar('data/test_accuracy', acc, iters)
+  writer.add_scalar('data/train_accuracy', acc_tr, iters)
+  writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
+  writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
+  writer.add_scalar('data/val_accuracy', acc_val, iters)
+  writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
+  if acc_val_seq > cur_best:
+    cur_best = acc_val_seq
+    print("Writing models at epoch {}".format(epoch))
+    with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+      torch.save(encoder, ckpt)
+    with open(dirs + "/models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+      torch.save(decoder, ckpt)
+    torch.save(decoder.state_dict(),
+               dirs + '/models/Params_Decoder_' + model_name + '.tar')
+    torch.save(encoder.state_dict(),
+               dirs + '/models/Params_Encoder_' + model_name + '.tar')
+  # accs.append(acc_seq)
+  # accs_tr.append(acc_tr_seq)
+  print("Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
+        "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
+        .format(loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
+
+writer.export_scalars_to_json(dirs + "/json/" + model_name + ".json")
+writer.close()
