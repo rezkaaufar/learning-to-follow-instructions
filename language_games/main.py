@@ -134,9 +134,9 @@ def run_train(config):
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
-        with open(cloud_str + "models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
-          torch.save(encoder, ckpt)
         with open(cloud_str + "models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+          torch.save(encoder, ckpt)
+        with open(cloud_str + "models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
         torch.save(decoder.state_dict(),
                    cloud_str + 'models/Params_Decoder_' + model_name + '.tar')
@@ -156,13 +156,13 @@ def run_train(config):
 import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
-ap.add_argument('--dropout_rate', type=float, choices=[0, 0.2, 0.5])
+ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
 ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
 
 args = ap.parse_args()
 
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-model_name = "Seq2Conv_50000_nvl_" + which_data + "_" + model_name
+model_name = "Trans2Conv_50000_nvl_" + which_data + "_" + model_name
 
 t_start = time.time()
 
@@ -208,9 +208,9 @@ for epoch in range(1, n_epochs + 1):
   if acc_val_seq > cur_best:
     cur_best = acc_val_seq
     print("Writing models at epoch {}".format(epoch))
-    with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
-      torch.save(encoder, ckpt)
     with open(dirs + "/models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+      torch.save(encoder, ckpt)
+    with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
       torch.save(decoder, ckpt)
     torch.save(decoder.state_dict(),
                dirs + '/models/Params_Decoder_' + model_name + '.tar')
