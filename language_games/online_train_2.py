@@ -552,7 +552,7 @@ else:
     args =  ap.parse_args()
 
     fn = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-    f = open(dirs + "/online-result/model2/" + fn + ".txt", 'w')
+    f = open(dirs + "/online-result/hyperparameter_artificial_data_model2/" + fn + ".txt", 'w')
 
     if args.lamb in ['yes', '1', 'true', 'True']:
         args.lamb = True
