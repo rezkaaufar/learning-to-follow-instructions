@@ -54,8 +54,8 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
-cur_decoder = "/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
-cur_encoder = "/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
+cur_decoder = "/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
+cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
 
 ## main run ##
 
