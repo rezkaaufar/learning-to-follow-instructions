@@ -547,12 +547,15 @@ else:
     ap.add_argument('--k', default=7, type=int)
     ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5])
     ap.add_argument('--learner', choices=['random', 'gd'])
+    ap.add_argument('--output', required=True)
     ap.add_argument('--data')
 
     args =  ap.parse_args()
 
     fn = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-    f = open(dirs + "/online-result/hyperparameter_artificial_data_model2/" + fn + ".txt", 'w')
+    outdir = dirs + "/online-result/"+args.output
+    os.makedirs(outdir, exist_ok=True)
+    f = open(outdir +"/" + fn + ".txt", 'w')
 
     if args.lamb in ['yes', '1', 'true', 'True']:
         args.lamb = True

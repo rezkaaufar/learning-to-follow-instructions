@@ -6,5 +6,6 @@
     "unfreezed": [1],
     "k": [7],
     "learner": ["gd"],
+    "output": ["hyperparameter_artificial_data_model2"],
     "data" : ["lang_games_data_artificial_train_online_nvl"]
 }
