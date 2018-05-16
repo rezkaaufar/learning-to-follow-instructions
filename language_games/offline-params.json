@@ -1,0 +1,5 @@
+{
+    "hidden_size": [32,64,128,256],
+    "dropout_rate": [0, 0.2, 0.5],
+    "layers_conv": [4, 5, 6]
+}
