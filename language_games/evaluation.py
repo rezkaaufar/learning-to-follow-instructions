@@ -93,7 +93,7 @@ def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_
       # print((pred_seq == tgt_seq).float().sum(dim=0))
   return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
 
-def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, attn=False):
+def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, mean_attn, attn=False):
   it = len(inps_t) / batch_size
   acc_tot = 0
   acc_tot_seq = 0
@@ -103,7 +103,7 @@ def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
     encoder.eval()
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps_t, instrs_t, targets_t)
-    encoder_ht = encoder(instr, batch_size)
+    encoder_ht = encoder(instr, batch_size, mean_attn)
     context = encoder_ht
     position_ids = generate_position_ids(batch_size, dataset.len_targets)
     if attn:
@@ -135,7 +135,7 @@ def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
       # print((pred_seq == tgt_seq).float().sum(dim=0))
   return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
 
-def accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets, batch_size, attn=False):
+def accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets, batch_size, mean_attn, attn=False):
   it = len(inps) / batch_size
   acc_tot = 0
   acc_tot_seq = 0
@@ -145,7 +145,7 @@ def accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets, batc
     encoder.eval()
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
-    encoder_ht = encoder(instr, batch_size)
+    encoder_ht = encoder(instr, batch_size, mean_attn)
     context = encoder_ht
     position_ids = generate_position_ids(batch_size, dataset.len_targets)
     if attn:

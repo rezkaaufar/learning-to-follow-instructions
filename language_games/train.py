@@ -38,12 +38,12 @@ def train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, len_ta
   return loss.data[0] / len_targets
 
 def train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, len_targets, batch_size,
-          inp, instr, target, attn=False):
+          inp, instr, target, mean_attn, attn=False):
   command_len = 3
   loss = 0
   optimizer.zero_grad()
   enc_optimizer.zero_grad()
-  encoder_ht = encoder(instr, batch_size)
+  encoder_ht = encoder(instr, batch_size, mean_attn)
   context = encoder_ht
   position_ids = generate_position_ids(batch_size, len_targets)
   if attn:

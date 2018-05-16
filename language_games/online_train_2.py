@@ -59,7 +59,7 @@ cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_s
 
 ## main run ##
 
-def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, learning_rate, unfreezed=1):
+def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, learning_rate, unfreezed=1, mean_attn=True):
   ## initialize dataset ##
   which_data = "utter_blocks"
   words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even"]
@@ -197,17 +197,17 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
         cv1_loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                               len_ins, n_hidden, batch_size,
-                                              inp, instr, target, attn=attn, eval=True)
+                                              inp, instr, target, mean_attn, attn=attn, eval=True)
       else:
         cv1_loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                               len_ins, n_hidden, batch_size,
-                                              inp, instr, target, attn=attn, eval=True)
+                                              inp, instr, target, mean_attn, attn=attn, eval=True)
       loss_eval_cv1 += cv1_loss
       model_loss_cv.append(loss_eval_cv1)
 
       acc, acc_seq = hot.accuracy_test_data_ext_2(dataset, len_ex, len_tgt,
                                             len_ins, enc_ext, decoder, [inps_m[i]], [instrs_m[i]], [targets_m[i]],
-                                            all_words_comb, n_hidden, batch_size, attn=attn)
+                                            all_words_comb, n_hidden, batch_size, mean_attn, attn=attn)
       online_accuracy += acc_seq
       predicted_at_t.append(acc_seq)
       ### [CV END] ###
@@ -240,11 +240,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
           else:
             loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
@@ -269,11 +269,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
           else:
             loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
@@ -548,6 +548,7 @@ else:
     ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5])
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--output', required=True)
+    ap.add_argument('--mean_attn')
     ap.add_argument('--data')
 
     args =  ap.parse_args()
@@ -561,6 +562,11 @@ else:
         args.lamb = True
     else:
         args.lamb = False
+
+    if args.mean_attn in ['yes', '1', 'true', 'True']:
+        args.mean_attn = True
+    else:
+        args.mean_attn = False
 
     t_start = time.time()
 

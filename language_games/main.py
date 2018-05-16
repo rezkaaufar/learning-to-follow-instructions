@@ -158,8 +158,14 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
 ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
 ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
+ap.add_argument('--mean_attn', type=int)
 
 args = ap.parse_args()
+
+if args.mean_attn in ['yes', '1', 'true', 'True']:
+  args.mean_attn = True
+else:
+  args.mean_attn = False
 
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
 model_name = "Trans2Conv_50000_nvl_" + which_data + "_" + model_name
@@ -189,16 +195,16 @@ for epoch in range(1, n_epochs + 1):
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
     loss = train.train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
-                       inp, instr, target, attn=attn)
+                       inp, instr, target, args.mean_attn, attn=attn)
     writer.add_scalar('data/loss', loss, iters)
     losses.append(loss)
     iters += 1
   acc, acc_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
-                                               batch_size, attn=attn)
+                                               batch_size, args.mean_attn, attn=attn)
   acc_val, acc_val_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
-                                                       batch_size, attn=attn)
+                                                       batch_size, args.mean_attn, attn=attn)
   acc_tr, acc_tr_seq = evaluation.accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets,
-                                                      batch_size, attn=attn)
+                                                      batch_size, args.mean_attn, attn=attn)
   writer.add_scalar('data/test_accuracy', acc, iters)
   writer.add_scalar('data/train_accuracy', acc_tr, iters)
   writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
