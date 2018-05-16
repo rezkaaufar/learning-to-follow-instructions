@@ -54,6 +54,8 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
+cur_decoder = "/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
+cur_encoder = "/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
 
 ## main run ##
 
@@ -133,9 +135,9 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     encoder = encoder_attn.Encoder(dataset.n_words, n_hidden)
     if unfreezed != 5:
       decoder.load_state_dict(
-        torch.load(dirs + '/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+        torch.load(dirs + cur_decoder))
     encoder.load_state_dict(
-      torch.load(dirs + '/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar'))
+      torch.load(dirs + cur_encoder))
     decoder.cuda()
     encoder.cuda()
     criterion = nn.NLLLoss()
@@ -408,8 +410,8 @@ def run_random_search(k_trial, human_data, lamb):
     decoder = Decoder.ConvDecoder(dataset.n_letters, n_hidden, n_hidden, dataset.n_letters, dataset.len_example,
                                   kernel_size=3, n_layers=layers_conv, dropout_p=0.5, example_len=dataset.len_instr)
     encoder = encoder_attn.Encoder(dataset.n_words, n_hidden)
-    decoder.load_state_dict(torch.load(dirs + '/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar'))
-    encoder.load_state_dict(torch.load(dirs + '/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar'))
+    decoder.load_state_dict(torch.load(dirs + cur_decoder))
+    encoder.load_state_dict(torch.load(dirs + cur_encoder))
     decoder.cuda()
     encoder.cuda()
     criterion = nn.NLLLoss()
