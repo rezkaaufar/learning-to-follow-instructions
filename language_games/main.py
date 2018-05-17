@@ -86,7 +86,7 @@ config.append((64, 1, 0.5))
 
 def run_train(config):
   for j, elem in enumerate(config):
-    model_name = "Seq2Conv_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
+    model_name = "Trans2Conv_50000_nvl_" + which_data + "_hid" + str(elem[0]) + \
                  "_layer" + str(elem[1]) + "_drop" + str(elem[2]) + dot_str + bi_str + "_new"
     batch_size = 200
     if load:
@@ -158,7 +158,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
 ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
 ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
-ap.add_argument('--mean_attn', type=int)
+ap.add_argument('--mean_attn', type=str)
 
 args = ap.parse_args()
 
