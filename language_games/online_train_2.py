@@ -21,13 +21,13 @@ import os
 ## hyperparameters ##
 # hyperparameters
 n_epochs = 100
-n_hidden = 64 # (32, 64, 128, 256)
+n_hidden = 256 # (32, 64, 128, 256)
 n_layers = 1 # (1, 2)
-layers_conv = 6
+layers_conv = 4
 lr = 1e-3
 clip = 5.0
 batch_size = 200
-dropout = 0.5
+dropout = 0.2
 ponder_step = 5
 concat = False
 attn = True
