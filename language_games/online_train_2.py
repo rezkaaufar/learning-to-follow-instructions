@@ -73,11 +73,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
                                                       + which_data + "_50000.txt")
   inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                       + which_data + "_50000.txt")
-  # inps_m, instrs_m, targets_m = hot.read_merged_data(
-  #   dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  inps_m, instrs_m, targets_m = hot.read_merged_data(
+    dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(
   #   dirs + "/dataset/online_test/" + human_data + ".txt")
-  inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
   dataset.randomize_data()
@@ -373,11 +373,11 @@ def run_random_search(k_trial, human_data, lamb):
                                                       + which_data + "_50000.txt")
   inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                       + which_data + "_50000.txt")
-  # inps_m, instrs_m, targets_m = hot.read_merged_data(
-  #   dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  inps_m, instrs_m, targets_m = hot.read_merged_data(
+    dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(
   #   dirs + "/dataset/online_test/" + human_data + ".txt")
-  inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/"+ human_data +".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/"+ human_data +".txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
   dataset.randomize_data()
