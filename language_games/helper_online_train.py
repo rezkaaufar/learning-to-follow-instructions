@@ -441,21 +441,34 @@ class Encoder2Extended(nn.Module):
       embedded = self.embedding_ext(inputs)  # [batch_size, seq_len, hidden_size]
     else:
       embedded = self.embedding(inputs)  # [batch_size, seq_len, hidden_size]
+
     pos_index = torch.LongTensor([0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 17]).cuda()
     col_index = torch.LongTensor([8, 9, 14, 15]).cuda()
     com_index = torch.LongTensor([6, 16]).cuda()
+
     if not attn:
-      alpha_1 = torch.bmm(embedded, self.attention_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      alpha_1 = F.softmax(torch.bmm(embedded, self.attention_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)),
+                          dim=1)
       result_1 = torch.sum(alpha_1 * embedded, dim=1)
-      alpha_2 = torch.bmm(embedded, self.attention_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      alpha_2 = F.softmax(torch.bmm(embedded, self.attention_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)),
+                          dim=1)
       result_2 = torch.sum(alpha_2 * embedded, dim=1)
-      alpha_3 = torch.bmm(embedded, self.attention_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      alpha_3 = F.softmax(torch.bmm(embedded, self.attention_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)),
+                          dim=1)
       result_3 = torch.sum(alpha_3 * embedded, dim=1)
     else:
-      result_1 = torch.sum(self.embedding.weight[(com_index)].mean(0) * embedded, dim=1)
-      result_2 = torch.sum(self.embedding.weight[(col_index)].mean(0) * embedded, dim=1)
-      result_3 = torch.sum(self.embedding.weight[(pos_index)].mean(0) * embedded, dim=1)
-    return torch.cat([result_1.unsqueeze(1), result_2.unsqueeze(1), result_3.unsqueeze(1)], dim=1)
+      atn_1 = self.embedding.weight[(com_index)].mean(0)
+      alpha_1 = F.softmax(torch.bmm(embedded, atn_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)), dim=1)
+      result_1 = torch.sum(alpha_1 * embedded, dim=1)
+      atn_2 = self.embedding.weight[(col_index)].mean(0)
+      alpha_2 = F.softmax(torch.bmm(embedded, atn_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)), dim=1)
+      result_2 = torch.sum(alpha_2 * embedded, dim=1)
+      atn_3 = self.embedding.weight[(pos_index)].mean(0)
+      alpha_3 = F.softmax(torch.bmm(embedded, atn_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2)), dim=1)
+      result_3 = torch.sum(alpha_3 * embedded, dim=1)
+
+    return torch.cat([result_1.unsqueeze(1), result_2.unsqueeze(1), result_3.unsqueeze(1)],
+                     dim=1)
 
 # training
 def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
