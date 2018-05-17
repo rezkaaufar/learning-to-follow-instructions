@@ -435,23 +435,31 @@ class Encoder2Extended(nn.Module):
     self.attention_2 = nn.Parameter(torch.rand(1, hidden_size))
     self.attention_3 = nn.Parameter(torch.rand(1, hidden_size))
 
-  def forward(self, inputs, batch_size, new_emb):
+  def forward(self, inputs, batch_size, attn, new_emb):
     # Note: we run this all at once (over the whole input sequence)
     if new_emb:
       embedded = self.embedding_ext(inputs)  # [batch_size, seq_len, hidden_size]
     else:
       embedded = self.embedding(inputs)  # [batch_size, seq_len, hidden_size]
-    alpha_1 = torch.bmm(embedded, self.attention_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
-    result_1 = torch.sum(alpha_1 * embedded, dim=1)
-    alpha_2 = torch.bmm(embedded, self.attention_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
-    result_2 = torch.sum(alpha_2 * embedded, dim=1)
-    alpha_3 = torch.bmm(embedded, self.attention_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1, 2))
-    result_3 = torch.sum(alpha_3 * embedded, dim=1)
+    pos_index = torch.LongTensor([0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 17]).cuda()
+    col_index = torch.LongTensor([8, 9, 14, 15]).cuda()
+    com_index = torch.LongTensor([6, 16]).cuda()
+    if not attn:
+      alpha_1 = torch.bmm(embedded, self.attention_1.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      result_1 = torch.sum(alpha_1 * embedded, dim=1)
+      alpha_2 = torch.bmm(embedded, self.attention_2.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      result_2 = torch.sum(alpha_2 * embedded, dim=1)
+      alpha_3 = torch.bmm(embedded, self.attention_3.unsqueeze(0).expand(batch_size, -1, -1).transpose(1,2))
+      result_3 = torch.sum(alpha_3 * embedded, dim=1)
+    else:
+      result_1 = torch.sum(self.embedding.weight[(com_index)].mean(0) * embedded, dim=1)
+      result_2 = torch.sum(self.embedding.weight[(col_index)].mean(0) * embedded, dim=1)
+      result_3 = torch.sum(self.embedding.weight[(pos_index)].mean(0) * embedded, dim=1)
     return torch.cat([result_1.unsqueeze(1), result_2.unsqueeze(1), result_3.unsqueeze(1)], dim=1)
 
 # training
 def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
-              n_hidden, batch_size, inp, instr, target, attn=False, eval=False):
+              n_hidden, batch_size, inp, instr, target, mean_attn, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   command_len = 3
@@ -459,9 +467,9 @@ def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex,
   cntxt = Variable(torch.zeros(len_ins, 1, 3, n_hidden)).cuda()
   for c in range(len_ins):
     if instr[0, c].data[0] < dataset.n_words:
-      ht = enc_ext(instr[0, c].unsqueeze(1), 1, False)
+      ht = enc_ext(instr[0, c].unsqueeze(1), 1, mean_attn, False)
     else:
-      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, True)
+      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, mean_attn, True)
     cntxt[c] = ht.contiguous()
   cntxt = cntxt.squeeze(1).transpose(0, 1)
 
@@ -487,7 +495,7 @@ def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex,
   return loss.data[0] / len_tgt
 
 def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
-              n_hidden, batch_size, inp, instr, target, attn=False, eval=False):
+              n_hidden, batch_size, inp, instr, target, mean_attn, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   decoder_optimizer.zero_grad()
@@ -496,9 +504,9 @@ def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer
   cntxt = Variable(torch.zeros(len_ins, 1, 3, n_hidden)).cuda()
   for c in range(len_ins):
     if instr[0, c].data[0] < dataset.n_words:
-      ht = enc_ext(instr[0, c].unsqueeze(1), 1, False)
+      ht = enc_ext(instr[0, c].unsqueeze(1), 1, mean_attn, False)
     else:
-      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, True)
+      ht = enc_ext(instr[0, c].unsqueeze(1) % 20, 1, mean_attn, True)
     cntxt[c] = ht.contiguous()
   cntxt = cntxt.squeeze(1).transpose(0, 1)
 
@@ -526,7 +534,7 @@ def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer
 
 def accuracy_test_data_ext_2(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder,
                            inps_mt, instrs_mt, targets_mt, all_words_comb, n_hidden, batch_size,
-                           attn=False):
+                           mean_attn, attn=False):
   it = len(inps_mt) / batch_size
   acc_tot = 0
   acc_tot_seq = 0
@@ -543,9 +551,9 @@ def accuracy_test_data_ext_2(dataset, len_ex, len_tgt, len_ins, enc_ext, decoder
     cntxt = Variable(torch.zeros(len_ins, batch_size, 3, n_hidden)).cuda()
     for c in range(len_ins):
       if instr[:, c].data[0] < dataset.n_words:
-        ht = enc_ext(instr[:, c].unsqueeze(1), batch_size, False)
+        ht = enc_ext(instr[:, c].unsqueeze(1), batch_size, mean_attn, False)
       else:
-        ht = enc_ext(instr[:, c].unsqueeze(1) % 20, batch_size, True)
+        ht = enc_ext(instr[:, c].unsqueeze(1) % 20, batch_size, mean_attn, True)
       cntxt[c] = ht.contiguous()
     cntxt = cntxt.squeeze(1).transpose(0, 1)
     context = torch.sum(cntxt, dim=1).unsqueeze(0)

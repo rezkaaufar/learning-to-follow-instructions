@@ -54,8 +54,8 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
-cur_decoder = "/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
-cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_64-dropout_rate_0.5-layers_conv_6.tar"
+cur_decoder = "/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.2-layers_conv_4-mean_attn_True.tar"
+cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.2-layers_conv_4-mean_attn_True.tar"
 
 ## main run ##
 
@@ -575,7 +575,7 @@ else:
         f.write("Random " + fn + "\n")
         f.write(str(res) + "\n")
     else:
-        res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed)
+        res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed, args.mean_attn)
         #hyper_comb = " ".join(str(z) for z in c)
         f.write(fn + "\n")
         f.write(str(res) + "\n")
