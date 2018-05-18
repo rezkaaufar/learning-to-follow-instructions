@@ -55,7 +55,7 @@ load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
 cur_decoder = "/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.5-layers_conv_5-mean_attn_True.tar"
-cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.5-layers_conv_5-mean_attn_True.targt"
+cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.5-layers_conv_5-mean_attn_True.tar"
 
 
 ## main run ##
@@ -508,7 +508,7 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 50, 1e-2, 3), ('Adam', False, 100, 1e-2, 3)]
+    config = [('Adam', True, 50, 1e-2, 1, True), ('Adam', False, 100, 1e-2, 1, True)]
     k_model = 7
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
@@ -523,10 +523,10 @@ if do_sweep:
 
     for human_data in picked_human_data:
       #human_data = line.replace("\n","")
-      f = open(dirs + "/online-result/" + human_data + "unfreezed_2.txt", "w")
+      f = open(dirs + "/online-result/" + human_data + "_mean_attn.txt", "w")
       for c in config:
         t_start = time.time()
-        res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])
+        res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4], c[5])
         hyper_comb = " ".join(str(z) for z in c)
         f.write(hyper_comb + "\n")
         f.write(str(res) + "\n")
