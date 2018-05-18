@@ -145,23 +145,23 @@ def run_train(config):
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
-        with open(cloud_str + "models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(encoder, ckpt)
-        with open(cloud_str + "models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
         torch.save(decoder.state_dict(),
-                   cloud_str + 'models/Params_Decoder_' + model_name + '.tar')
+                   dirs + '/models/Params_Decoder_' + model_name + '.tar')
         torch.save(encoder.state_dict(),
-                   cloud_str + 'models/Params_Encoder_' + model_name + '.tar')
+                   dirs + '/models/Params_Encoder_' + model_name + '.tar')
       #accs.append(acc_seq)
       #accs_tr.append(acc_tr_seq)
       print("Config {}, Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
             "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
         .format(str(j), loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
 
-    writer.export_scalars_to_json(cloud_str + "json/"+ model_name +".json")
+    writer.export_scalars_to_json(dirs + "/json/"+ model_name +".json")
     writer.close()
-    df.to_json(clud_str + 'json/'+ model_name + '.pd.json')
+    df.to_json(dirs + '/json/'+ model_name + '.pd.json')
 
 #run_train(config)
 
