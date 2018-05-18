@@ -12,6 +12,7 @@ import math
 import itertools
 import os
 import encoder_attn
+import pandas as pd
 from tensorboardX import SummaryWriter
 
 ## hyperparameters ##
@@ -105,8 +106,11 @@ def run_train(config):
     losses, accs, accs_tr = [], [], []
 
     writer = SummaryWriter()
+    df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy', 
+    'data/train_accuracy', 'data/test_seq_accuracy', 'data/train_seq_accuracy',
+    'data/val_accuracy', 'data/val_seq_accuracy', 'iters'])
+    df = df.set_index('iters')
 
-    cur_best = 0
     for epoch in range(1, n_epochs + 1):
       decoder.train(True)
       encoder.train(True)
@@ -117,6 +121,7 @@ def run_train(config):
         loss = train.train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
                            inp, instr, target, attn=attn)
         writer.add_scalar('data/loss', loss, iters)
+        df.loc[iters,'data/loss'] = loss
         losses.append(loss)
         iters += 1
       acc, acc_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
@@ -131,6 +136,12 @@ def run_train(config):
       writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
       writer.add_scalar('data/val_accuracy', acc_val, iters)
       writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
+      df.loc[iters,'data/test_accuracy'] = acc
+      df.loc['data/train_accuracy'] = acc_tr
+      df.loc['data/test_seq_accuracy'] = acc_seq
+      df.loc['data/train_seq_accuracy'] = acc_tr_seq
+      df.loc['data/val_accuracy'] = acc_val
+      df.loc['data/val_seq_accuracy'] = acc_val_seq
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
@@ -150,6 +161,7 @@ def run_train(config):
 
     writer.export_scalars_to_json(cloud_str + "json/"+ model_name +".json")
     writer.close()
+    df.to_json(clud_str + 'json/'+ model_name + '.pd.json')
 
 #run_train(config)
 
@@ -185,6 +197,10 @@ iters = 0
 losses, accs, accs_tr = [], [], []
 
 writer = SummaryWriter()
+df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy', 
+'data/train_accuracy', 'data/test_seq_accuracy', 'data/train_seq_accuracy',
+'data/val_accuracy', 'data/val_seq_accuracy', 'iters'])
+df = df.set_index('iters')
 
 cur_best = 0
 for epoch in range(1, n_epochs + 1):
@@ -197,6 +213,7 @@ for epoch in range(1, n_epochs + 1):
     loss = train.train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
                        inp, instr, target, args.mean_attn, attn=attn)
     writer.add_scalar('data/loss', loss, iters)
+    df.loc[iters,'data/loss'] = loss
     losses.append(loss)
     iters += 1
   acc, acc_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
@@ -211,6 +228,12 @@ for epoch in range(1, n_epochs + 1):
   writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
   writer.add_scalar('data/val_accuracy', acc_val, iters)
   writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
+  df.loc[iters,'data/test_accuracy'] = acc
+  df.loc['data/train_accuracy'] = acc_tr
+  df.loc['data/test_seq_accuracy'] = acc_seq
+  df.loc['data/train_seq_accuracy'] = acc_tr_seq
+  df.loc['data/val_accuracy'] = acc_val
+  df.loc['data/val_seq_accuracy'] = acc_val_seq
   if acc_val_seq > cur_best:
     cur_best = acc_val_seq
     print("Writing models at epoch {}".format(epoch))
@@ -230,3 +253,4 @@ for epoch in range(1, n_epochs + 1):
 
 writer.export_scalars_to_json(dirs + "/json/" + model_name + ".json")
 writer.close()
+df.to_json(dirs + '/json/'+ model_name + '.pd.json')
