@@ -533,7 +533,7 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('SGD', True, 100, 2, 1, True)]
+    config = [('Adam', True, 10, 1e-2, 1, True)]
     k_model = 2
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
@@ -575,7 +575,9 @@ else:
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--output', required=True)
     ap.add_argument('--mean_attn')
+    ap.add_argument('--reg_lamb', type=float)
     ap.add_argument('--data')
+
 
     args =  ap.parse_args()
 
@@ -601,7 +603,8 @@ else:
         f.write("Random " + fn + "\n")
         f.write(str(res) + "\n")
     else:
-        res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed, args.mean_attn)
+        res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed, args.mean_attn,
+                              args.reg_lamb)
         #hyper_comb = " ".join(str(z) for z in c)
         f.write(fn + "\n")
         f.write(str(res) + "\n")

@@ -503,7 +503,7 @@ def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex,
       loss += criterion(op[c], target[:, c])
 
   # REG LOSS #
-  loss += reg_lamb * enc_ext.embeddings.weight.norm(2)
+  loss += reg_lamb * enc_ext.embedding_ext.weight.norm(2)
 
   if not eval:
     loss.backward()
@@ -544,7 +544,7 @@ def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer
       loss += criterion(op[c], target[:, c])
 
   # REG LOSS #
-  loss += reg_lamb * enc_ext.embeddings.weight.norm(2)
+  loss += reg_lamb * enc_ext.embedding_ext.weight.norm(2)
 
   if not eval:
     loss.backward()
