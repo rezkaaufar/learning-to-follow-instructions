@@ -21,7 +21,7 @@ import os
 ## hyperparameters ##
 # hyperparameters
 n_epochs = 100
-n_hidden = 128 # (32, 64, 128, 256)
+n_hidden = 256 # (32, 64, 128, 256)
 n_layers = 1 # (1, 2)
 layers_conv = 5
 lr = 1e-3
