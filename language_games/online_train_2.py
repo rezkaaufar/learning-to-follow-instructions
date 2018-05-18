@@ -60,7 +60,8 @@ cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_s
 
 ## main run ##
 
-def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, learning_rate, unfreezed=1, mean_attn=True):
+def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, learning_rate, unfreezed=1, mean_attn=True,
+                    reg_lamb=1.0):
   ## initialize dataset ##
   which_data = "utter_blocks"
   words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even"]
@@ -147,8 +148,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     params1 = encoder.named_parameters()
     params2 = enc_ext.named_parameters()
 
+    if unfreezed == 1 or unfreezed == 2:
+      decoder.training = False
+
     dict_params2 = dict(params2)
-    if unfreezed != 4:
+    if unfreezed != 4 or unfreezed != 5:
       for name1, param1 in params1:
         if name1 in dict_params2:
           dict_params2[name1].data.copy_(param1.data)
@@ -200,11 +204,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
         cv1_loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                               len_ins, n_hidden, batch_size,
-                                              inp, instr, target, mean_attn, attn=attn, eval=True)
+                                              inp, instr, target, mean_attn, reg_lamb, attn=attn, eval=True)
       else:
         cv1_loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                               len_ins, n_hidden, batch_size,
-                                              inp, instr, target, mean_attn, attn=attn, eval=True)
+                                              inp, instr, target, mean_attn, reg_lamb, attn=attn, eval=True)
       loss_eval_cv1 += cv1_loss
       model_loss_cv.append(loss_eval_cv1)
 
@@ -243,11 +247,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, reg_lamb, attn=attn)
           else:
             loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, reg_lamb, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
@@ -272,11 +276,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
           if unfreezed == 3 or unfreezed == 4 or unfreezed == 5:
             loss = hot.train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, reg_lamb, attn=attn)
           else:
             loss = hot.train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt,
                                  len_ins, n_hidden, batch_size,
-                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, attn=attn)
+                                 inp_buffer, ins_buffer, lab_buffer, mean_attn, reg_lamb, attn=attn)
           loss_eval += loss
           iters += 1
         model_loss.append(loss_eval)
@@ -521,7 +525,7 @@ def run_random_search(k_trial, human_data, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-do_sweep = False
+do_sweep = True
 if do_sweep:
     #conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
     #conf = [["Adam", "SGD"], [True, False], [5, 10, 20, 50, 100], [1e-2, 1e-3, 1e-4, 1e-5], [4]]

@@ -472,7 +472,7 @@ class Encoder2Extended(nn.Module):
 
 # training
 def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
-              n_hidden, batch_size, inp, instr, target, mean_attn, attn=False, eval=False):
+              n_hidden, batch_size, inp, instr, target, mean_attn, reg_lamb, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   command_len = 3
@@ -501,6 +501,10 @@ def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex,
     op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(len_ex):
       loss += criterion(op[c], target[:, c])
+
+  # REG LOSS #
+  loss += reg_lamb * enc_ext.embeddings.weight.norm(2)
+
   if not eval:
     loss.backward()
     enc_ext_optimizer.step()
@@ -508,7 +512,7 @@ def train_ext_2(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex,
   return loss.data[0] / len_tgt
 
 def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
-              n_hidden, batch_size, inp, instr, target, mean_attn, attn=False, eval=False):
+              n_hidden, batch_size, inp, instr, target, mean_attn, reg_lamb, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   decoder_optimizer.zero_grad()
@@ -538,6 +542,10 @@ def train_ext_2_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer
     op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(len_ex):
       loss += criterion(op[c], target[:, c])
+
+  # REG LOSS #
+  loss += reg_lamb * enc_ext.embeddings.weight.norm(2)
+
   if not eval:
     loss.backward()
     enc_ext_optimizer.step()
