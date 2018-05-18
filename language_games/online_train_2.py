@@ -106,6 +106,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
   batch_size = 1
 
   predicted_at_ts = []
+  backward_acc_ts = []
 
   # greedy #
   online_accuracy_best = 0
@@ -183,6 +184,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     model_loss = []
     model_loss_cv = []
     predicted_at_t = []
+    backward_acc_t = []
     # online_accuracy_rst = 0
 
     ### train and evaluate ###
@@ -280,6 +282,19 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
         model_loss.append(loss_eval)
       ### TRAINING END ###
 
+      backward_acc = 0
+      for el in current_buf:
+        len_ex = len(inps_m[el].split(" "))
+        len_ins = len(instrs_m[el].split(" "))
+        len_tgt = len(targets_m[el].split(" "))
+        _, acc_seq2 = hot.accuracy_test_data_ext_2(dataset, len_ex, len_tgt,
+                                                    len_ins, enc_ext, decoder, [inps_m[el]], [instrs_m[el]],
+                                                    [targets_m[el]],
+                                                    all_words_comb, n_hidden, batch_size, mean_attn, attn=attn)
+        backward_acc += acc_seq2
+      backward_acc /= len(current_buf)
+      backward_acc_t.append(backward_acc)
+
       ### [Greedy] evaluate on current online training instances ###
       # acc, acc_seq = hot.accuracy_test_data_ext(dataset, enc_ext, decoder, [inps_m[i]], [instrs_m[i]], [targets_m[i]],
       #                                       all_words_comb, n_hidden, batch_size, lamb, attn=attn)
@@ -290,6 +305,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     model_losses.append(model_loss)
     model_losses_cv.append(model_loss_cv)
     predicted_at_ts.append(predicted_at_t)
+    backward_acc_ts.append(backward_acc_t)
 
     online_accuracy /= len(inps_m)
     # online_accuracy_cv /= len(inps_m)
@@ -312,13 +328,13 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     ### [Greedy] retrieve the best params and best online_accuracy ###
     if loss_eval < loss_thres:
       loss_thres = loss_eval
-      online_accuracy_best = online_accuracy
+      # online_accuracy_best = online_accuracy
       # acc_test_seq_best = acc_test_seq
 
     ### [1-out CV] retrieve the best params and best online_accuracy ###
     if loss_eval_cv1 < loss_thres_cv:
       loss_thres_cv = loss_eval_cv1
-      online_accuracy_best_cv = online_accuracy
+      # online_accuracy_best_cv = online_accuracy
       # acc_test_seq_best_cv = acc_test_seq
 
     ### highest test and online rest acc ###
@@ -350,15 +366,20 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
   mls = np.argmin(ml, axis=0).tolist()
   mlcvs = np.argmin(mlcv, axis=0).tolist()
   pats = np.array(predicted_at_ts)
+  bats = np.array(backward_acc_ts)
   res_ml = []
+  ba_ml = []
   for i, el in enumerate(mls):
     res_ml.append(pats[el,i])
+    ba_ml.append(bats[el,i])
   res_mlcv = []
+  ba_mlcv = []
   for i, el in enumerate(mlcvs):
     res_mlcv.append(pats[el,i])
+    ba_mlcv.append(bats[el,i])
   #print(pats)
   # [fin online acc greedy, fin online acc 1cv, picked model greedy, model id highest greedy, picked model 1cv, model id highest 1cv]
-  return [np.mean(res_ml), np.mean(res_mlcv), res_ml, res_mlcv, mls, mlcvs]
+  return [np.mean(res_ml), np.mean(res_mlcv), res_ml, res_mlcv, mls, mlcvs, ba_ml, ba_mlcv]
 
 def run_random_search(k_trial, human_data, lamb):
   ## initialize dataset ##
@@ -508,8 +529,8 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 50, 1e-2, 1, True), ('Adam', False, 100, 1e-2, 1, True)]
-    k_model = 7
+    config = [('SGD', True, 100, 2, 1, True)]
+    k_model = 2
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
 
