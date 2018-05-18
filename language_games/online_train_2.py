@@ -21,7 +21,7 @@ import os
 ## hyperparameters ##
 # hyperparameters
 n_epochs = 100
-n_hidden = 256 # (32, 64, 128, 256)
+n_hidden = 128 # (32, 64, 128, 256)
 n_layers = 1 # (1, 2)
 layers_conv = 5
 lr = 1e-3
@@ -56,6 +56,7 @@ load = False
 dirs = os.path.dirname(os.path.abspath(__file__))
 cur_decoder = "/models/Params_Decoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.5-layers_conv_5-mean_attn_True.tar"
 cur_encoder = "/models/Params_Encoder_Trans2Conv_50000_nvl_utter_blocks_hidden_size_256-dropout_rate_0.5-layers_conv_5-mean_attn_True.targt"
+
 
 ## main run ##
 
