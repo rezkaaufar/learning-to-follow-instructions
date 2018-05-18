@@ -575,7 +575,7 @@ else:
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--output', required=True)
     ap.add_argument('--mean_attn')
-    ap.add_argument('--reg_lamb', type=float)
+    ap.add_argument('--regularize', type=float)
     ap.add_argument('--data')
 
 
@@ -604,7 +604,7 @@ else:
         f.write(str(res) + "\n")
     else:
         res = run_train_optim(args.k, args.data, args.optim, args.lamb, args.steps, args.lr, args.unfreezed, args.mean_attn,
-                              args.reg_lamb)
+                              args.regularize)
         #hyper_comb = " ".join(str(z) for z in c)
         f.write(fn + "\n")
         f.write(str(res) + "\n")
