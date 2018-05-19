@@ -288,7 +288,7 @@ def generate_position_ids(batch_size, len_targets):
 
 def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
               n_hidden, batch_size, lamb,
-              inp, instr, target, attn=False, eval=False):
+              inp, instr, target, reg_lamb_emb, reg_lamb_w, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   decoder_optimizer.zero_grad()
@@ -320,6 +320,16 @@ def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, 
             loss += criterion(op[c], target[d,c])
     loss = loss / buffer_size
 
+    # REG LOSS #
+    w_norm = 0
+    emb_norm = 0
+    for name, params in enc_ext.named_parameters():
+      if "bias" not in name and "embedding" not in name:
+        w_norm += params.norm(2)
+      elif "embedding" in name:
+        emb_norm += params.norm(2)
+    loss += reg_lamb_emb * emb_norm + reg_lamb_w * w_norm
+
   if not eval:
     loss.backward()
     enc_ext_optimizer.step()
@@ -329,7 +339,7 @@ def train_ext_unfreezed(enc_ext, decoder, enc_ext_optimizer, decoder_optimizer, 
 
 def train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, len_tgt, len_ins,
               n_hidden, batch_size, lamb,
-              inp, instr, target, attn=False, eval=False):
+              inp, instr, target, reg_lamb_emb, reg_lamb_w, attn=False, eval=False):
   loss = 0
   enc_ext_optimizer.zero_grad()
   buffer_size = inp.size(0)
@@ -359,6 +369,16 @@ def train_ext(enc_ext, decoder, enc_ext_optimizer, criterion, dataset, len_ex, l
         for c in range(len_tgt):
             loss += criterion(op[c], target[d,c])
     loss = loss / buffer_size
+
+    # REG LOSS #
+    w_norm = 0
+    emb_norm = 0
+    for name, params in enc_ext.named_parameters():
+      if "bias" not in name and "embedding" not in name:
+        w_norm += params.norm(2)
+      elif "embedding" in name:
+        emb_norm += params.norm(2)
+    loss += reg_lamb_emb * emb_norm + reg_lamb_w * w_norm
 
   if not eval:
     loss.backward()
