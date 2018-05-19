@@ -74,11 +74,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
                                                       + which_data + "_50000.txt")
   inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                       + which_data + "_50000.txt")
-  inps_m, instrs_m, targets_m = hot.read_merged_data(
-    dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(
+  #   dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(
   #   dirs + "/dataset/online_test/" + human_data + ".txt")
-  # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
+  inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
   dataset.randomize_data()
@@ -398,11 +398,11 @@ def run_random_search(k_trial, human_data, lamb):
                                                       + which_data + "_50000.txt")
   inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                       + which_data + "_50000.txt")
-  inps_m, instrs_m, targets_m = hot.read_merged_data(
-    dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(
+  #   dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(
   #   dirs + "/dataset/online_test/" + human_data + ".txt")
-  # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
+  inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
   dataset.randomize_data()
@@ -532,10 +532,11 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 10, 1e-2, 6)]
+    config = [('Adam', True, 10, 1e-2, 1)]
     k_model = 2
 
-    picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
+    #picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
+    picked_human_data = ["lang_games_data_artificial_train_online_nvl"]
 
     # spec_name = ""
     # for el in words_to_replace:
@@ -546,8 +547,9 @@ if do_sweep:
     file = open(dirs + "/out.txt", "r")
 
     for human_data in picked_human_data:
+    #for line in file:
       #human_data = line.replace("\n","")
-      f = open(dirs + "/online-result/" + human_data + "_test.txt", "w")
+      f = open(dirs + "/online-result/" + human_data + ".txt", "w")
       for c in config:
         t_start = time.time()
         res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])
@@ -570,7 +572,7 @@ else:
     ap.add_argument('--steps', type=int)
     ap.add_argument('--lr', type=float)
     ap.add_argument('--k', default=7, type=int)
-    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5])
+    ap.add_argument('--unfreezed', type=int, choices=[1,2,3,4,5,6,7])
     ap.add_argument('--learner', choices=['random', 'gd'])
     ap.add_argument('--reg_lamb_emb', type=float)
     ap.add_argument('--reg_lamb_w', type=float)
