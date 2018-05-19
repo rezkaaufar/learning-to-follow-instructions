@@ -308,6 +308,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     model_losses.append(model_loss)
     model_losses_cv.append(model_loss_cv)
     predicted_at_ts.append(predicted_at_t)
+    backward_acc_ts.append(backward_acc_t)
 
     online_accuracy /= len(inps_m)
     # online_accuracy_cv /= len(inps_m)
