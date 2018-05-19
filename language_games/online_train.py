@@ -147,11 +147,11 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
     params1 = encoder.named_parameters()
     params2 = enc_ext.named_parameters()
 
-    if unfreezed == 1 or unfreezed == 2 or unfreezed == 6:
+    if unfreezed == 1 or unfreezed == 2 or unfreezed == 6 or unfreezed == 7:
       decoder.training = False
 
     dict_params2 = dict(params2)
-    if unfreezed != 4 or unfreezed != 5:
+    if unfreezed != 4 or unfreezed != 5 or unfreezed != 7:
       for name1, param1 in params1:
         if name1 in dict_params2:
           dict_params2[name1].data.copy_(param1.data)
