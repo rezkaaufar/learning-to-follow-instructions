@@ -533,7 +533,7 @@ if do_sweep:
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
     config = [('Adam', True, 10, 1e-2, 6)]
-    k_model = 7
+    k_model = 2
 
     picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
 
