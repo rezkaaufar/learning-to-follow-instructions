@@ -10,7 +10,7 @@ def main():
     ap.add_argument('-n', '--add-names', action='store_true', default=False)
     ap.add_argument('-u', '--unfreezed')
     ap.add_argument('-l', '--lamb')
-    ap.add_argument('-v', '--val', type=int, default=0)
+    ap.add_argument('-v', '--val')
     args = ap.parse_args()
 
     df = None
@@ -20,7 +20,11 @@ def main():
         l = l.replace('e-0', 'e_0')
         if i%2 == 0:
             name = l
-            features = dict(fs.split("_", 1) for fs in l.split("-"))
+            try:
+                features = dict(fs.split("_", 1) for fs in l.split("-"))
+            except ValueError:
+                print(l)
+                raise
             if df is None:
                 df = pd.DataFrame(columns=list(features.keys()) + ['accuracy',
                     'back_accuracy', 'name'])
@@ -31,12 +35,20 @@ def main():
                 df.loc[idx, k] = v
             if args.add_names:
                 df.loc[idx,'name'] = name
-            df.loc[idx,'accuracy']= float(res[args.val]) if args.val <2 else max(float(res[0]),float(res[1]))
+            df.loc[idx,'greedy'] = float(res[0]) #if args.val <2 else max(float(res[0]),float(res[1]))
+            df.loc[idx,'1-out'] = float(res[1]) #if args.val <2 else max(float(res[0]),float(res[1]))
+            #df.loc[idx,'accuracy']= float(res[args.val]) if args.val <2 else max(float(res[0]),float(res[1]))
             if len(res) > 6:
                 df.loc[idx,'back_accuracy']= float((res[-2][-1]))
     if df is None:
         print("No input")
         exit(1)
+    val_vars = ['greedy', '1-out']
+    df = pd.melt(df, id_vars=list(c for c in df.columns if c not in val_vars),
+            value_vars=val_vars, value_name='accuracy', var_name='model-select')
+
+    df.reset_index(level=0, inplace=True)
+    #df = df.reset_index(drop=True)
     group_by = ['data', 'lr']
     measure='accuracy'
     dtypes = {'data': 'str', 'steps': 'int', 'accuracy': 'float',
@@ -47,14 +59,16 @@ def main():
         df = df[df['unfreezed'] == args.unfreezed]
     if args.lamb:
         df = df[df['lamb'] == args.lamb]
-    best_res_all = df.loc[df.groupby(group_by)[measure].idxmax()]
+    if args.val:
+        df = df[df['model-select'] == args.val]
+    best_res_all = df.loc[df.groupby(group_by)[measure].idxmax().drop_duplicates()]
     best_res = best_res_all.groupby(group_by).first().reset_index()
     pd.set_option('display.height', 1000)
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
     pd.set_option('display.max_colwidth', 1000)
-    print(best_res)
+    print(best_res_all.sort_values(group_by))
 
 
 main()
