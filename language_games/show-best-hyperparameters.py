@@ -8,6 +8,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('results', nargs='*')
     ap.add_argument('-n', '--add-names', action='store_true', default=False)
+    ap.add_argument('-u', '--unfreezed')
+    ap.add_argument('-l', '--lamb')
+    ap.add_argument('-v', '--val', type=int, default=0)
     args = ap.parse_args()
 
     df = None
@@ -28,15 +31,22 @@ def main():
                 df.loc[idx, k] = v
             if args.add_names:
                 df.loc[idx,'name'] = name
-            df.loc[idx,'accuracy']= float(res[1])
+            df.loc[idx,'accuracy']= float(res[args.val]) if args.val <2 else max(float(res[0]),float(res[1]))
             if len(res) > 6:
                 df.loc[idx,'back_accuracy']= float((res[-2][-1]))
-    group_by = ['data', 'steps']
+    if df is None:
+        print("No input")
+        exit(1)
+    group_by = ['data', 'lr']
     measure='accuracy'
     dtypes = {'data': 'str', 'steps': 'int', 'accuracy': 'float',
             'back_accuracy': 'float'}
     for k,v in dtypes.items():
         df[k] = df[k].astype(v)
+    if args.unfreezed:
+        df = df[df['unfreezed'] == args.unfreezed]
+    if args.lamb:
+        df = df[df['lamb'] == args.lamb]
     best_res_all = df.loc[df.groupby(group_by)[measure].idxmax()]
     best_res = best_res_all.groupby(group_by).first().reset_index()
     pd.set_option('display.height', 1000)
