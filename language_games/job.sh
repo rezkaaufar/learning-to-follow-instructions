@@ -9,11 +9,16 @@ module load eb
 module load CUDA
 
 #Determining the number of processors in the system
-NPROC=`nproc --all`
+#NPROC=`nproc --all`
 
 #Execute program located in $HOME
-for i in `seq 1 $NPROC`; do
+#for i in `seq 1 $NPROC`; do
+#  echo "$i"
+#for j in "${arr[@]}"; do
+python3 $HOME/language_games/online_train.py $PATH &
+#python3 online_train.py $j &
+#done
   #python3 $HOME/language_games/main.py &
-  python3 $HOME/language_games/online_train.py &
-done
+  #python3 $HOME/language_games/online_train.py &
+#done
 wait

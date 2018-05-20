@@ -63,6 +63,7 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
                     reg_lamb_emb=1.0, reg_lamb_w=1.0):
   ## initialize dataset ##
   which_data = "utter_blocks"
+  m_name = "_".join([str(optimizer), str(lamb), str(training_updates), str(learning_rate)])
   words_to_replace = ["add", "red", "orange", "1st", "3rd", "5th", "even"]
   words_replacement = ["et", "roze", "oranje", "1", "3", "5", "ev"]
   number_train = 20
@@ -340,6 +341,9 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
       online_accuracy_best_cv = online_accuracy
       # acc_test_seq_best_cv = acc_test_seq
 
+    torch.save(enc_ext.state_dict(),
+               'models/online-res/params_encext_' + m_name + '_' + str(k) +'.tar')
+
     ### highest test and online rest acc ###
     # if acc_test_seq > highest_test:
     #   highest_test = acc_test_seq
@@ -524,7 +528,7 @@ def run_random_search(k_trial, human_data, lamb):
 #run_random_search(10)
 
 ### trial greedy ###
-do_sweep = False
+do_sweep = True
 if do_sweep:
     #conf = [["Adam", "SGD"], [True, False],[5, 10, 20, 50, 100],[1e-2, 1e-3, 1e-4, 1e-5], [1,2,3]]
     #conf = [["Adam", "SGD"], [True, False], [5, 10, 20, 50, 100], [1e-2, 1e-3, 1e-4, 1e-5], [4]]
@@ -532,8 +536,8 @@ if do_sweep:
     #conf = [["SGD"], [False],[50],[1e-5], [1,2,3]]
     #config = list(itertools.product(*conf))
     #config_rand = [True, False]
-    config = [('Adam', True, 10, 1e-2, 1)]
-    k_model = 2
+    config = [('Adam', True, 50, 1e-2, 1), ('Adam', True, 100, 1e-2, 1)]
+    k_model = 7
 
     #picked_human_data = ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
     picked_human_data = ["lang_games_data_artificial_train_online_nvl"]
@@ -549,7 +553,7 @@ if do_sweep:
     for human_data in picked_human_data:
     #for line in file:
       #human_data = line.replace("\n","")
-      f = open(dirs + "/online-result/" + human_data + ".txt", "w")
+      f = open(dirs + "/online-result/recover_words_seq2conv_trial2" + human_data + ".txt", "w")
       for c in config:
         t_start = time.time()
         res = run_train_optim(k_model, human_data, c[0], c[1], c[2], c[3], c[4])

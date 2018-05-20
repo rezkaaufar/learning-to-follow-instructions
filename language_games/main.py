@@ -63,11 +63,11 @@ def time_since(since):
 ## main ##
 # initialize dataset
 which_data = "utter_blocks"
-inps, instrs, targets = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_train_nvl_"
+inps, instrs, targets = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_train_nvl_"
                                               + which_data + "_50000.txt")
-inps_v, instrs_v, targets_v = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_valid_nvl_"
+inps_v, instrs_v, targets_v = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_valid_nvl_"
                                                     + which_data + "_50000.txt")
-inps_t, instrs_t, targets_t = data_loader.read_data(cloud_str + "dataset/lang_games_data_artificial_test_nvl_"
+inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                     + which_data + "_50000.txt")
 dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
 dataset.randomize_data()
