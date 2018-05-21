@@ -246,6 +246,6 @@ for epoch in range(1, n_epochs + 1):
         "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
         .format(loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
 
-writer.export_scalars_to_json(dirs + "/json/" + model_name + ".json")
+writer.export_scalars_to_json(dirs + "/json/conv2conv/" + model_name + ".json")
 writer.close()
-df.to_json(dirs + '/json/'+ model_name + '.pd.json')
+df.to_json(dirs + '/json/conv2conv/'+ model_name + '.pd.json')
