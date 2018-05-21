@@ -3,9 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+
 class Decoder(nn.Module):
   def __init__(self, input_size, hidden_size, output_size, n_layers=2, dropout_p=0.2, example_len=15,
-               concat=False, bi=False):
+               concat=False):
     super(Decoder, self).__init__()
 
     self.input_size = input_size
@@ -15,19 +16,13 @@ class Decoder(nn.Module):
     self.dropout_p = dropout_p
     self.input_dropout = nn.Dropout(p=dropout_p)
     self.embed = nn.Embedding(input_size, hidden_size)
-    self.lstm = nn.LSTM(hidden_size, hidden_size, n_layers, dropout=dropout_p, batch_first=True, bidirectional=bi)
+    self.lstm = nn.LSTM(hidden_size, hidden_size, n_layers, dropout=dropout_p, batch_first=True)
     if concat:
       self.output = nn.Linear(2 * hidden_size, output_size)
     else:
       self.output = nn.Linear(hidden_size, output_size)
-    if bi:
-      self.output = nn.Linear(2 * hidden_size, output_size)
-    else:
-      self.output = nn.Linear(hidden_size, output_size)
-
     self.example_len = example_len
     self.concat = concat
-    self.bi = bi
 
     # for context-attended output
     self.linear_out = nn.Linear(hidden_size * 2, hidden_size)
@@ -38,6 +33,7 @@ class Decoder(nn.Module):
   def forward(self, inputs, hidden, batch_size, attn=False, context=None):
     embedded = self.embed(inputs)  # [batch_size, seq_len, embed_size]
     embedded = self.input_dropout(embedded)
+    inp_embedded = embedded
     output = None
     # for visualization #
     vis_attn = Variable(torch.zeros(1, batch_size, 1, self.example_len)).cuda()
@@ -85,8 +81,7 @@ class Decoder(nn.Module):
           batch_size, -1, self.hidden_size)
         vis_attn[0] = attn
         out_ht = ht
-      if self.bi:
-        out_ht = out_ht.view(-1, 1, 2*self.hidden_size)
+
       output = F.log_softmax(self.output(out_ht.squeeze(1)), dim=1)
 
     return output, ht, hidden, vis_attn
