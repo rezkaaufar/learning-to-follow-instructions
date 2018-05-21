@@ -2,7 +2,6 @@ import numpy as np
 from numpy import random
 import torch
 from torch.autograd import Variable
-import copy
 
 class Dataset(object):
   def __init__(self, inps, instr, targets, inps_v, instr_v, targets_v, inps_t, instr_t, targets_t):

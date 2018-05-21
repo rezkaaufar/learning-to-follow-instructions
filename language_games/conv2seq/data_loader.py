@@ -135,4 +135,10 @@ def read_data(path):
       inputs.append(inp)
       targets.append(lab)
       instrs.append(ins)
+  ind = np.arange(0, len(inputs))
+  random.shuffle(ind)
+  shuffled_index = np.array([val for val in ind])
+  inputs = np.array(inputs)[shuffled_index].tolist()
+  targets = np.array(targets)[shuffled_index].tolist()
+  instrs = np.array(instrs)[shuffled_index].tolist()
   return inputs, instrs, targets

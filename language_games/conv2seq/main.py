@@ -11,7 +11,6 @@ import evaluation
 import math
 import itertools
 import os
-import encoder_attn
 import pandas as pd
 from tensorboardX import SummaryWriter
 
@@ -170,24 +169,20 @@ import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
 ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
-ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
-ap.add_argument('--mean_attn', type=str)
+ap.add_argument('--layers_lstm', type=int, choices=[1, 2])
+ap.add_argument('--layers_conv', type=int, choices=[4, 5])
 
 args = ap.parse_args()
 
-if args.mean_attn in ['yes', '1', 'true', 'True']:
-  args.mean_attn = True
-else:
-  args.mean_attn = False
-
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-model_name = "Trans2Conv_50000_nvl_" + which_data + "_" + model_name
+model_name = "Conv2Seq_50000_nvl_" + which_data + "_" + model_name
 
 t_start = time.time()
 
-decoder = Decoder.ConvDecoder(dataset.n_letters, args.hidden_size, args.hidden_size, dataset.n_letters, dataset.len_example,
-                              kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate, example_len=dataset.len_instr)
-encoder = encoder_attn.Encoder(dataset.n_words, args.hidden_size)
+decoder = Decoder.Decoder(dataset.n_letters, args.hidden_size, dataset.n_letters, args.layers_lstm, dropout_p=args.dropout_rate,
+                          example_len=dataset.len_instr, concat=False)
+encoder = Encoder.ConvEncoder(dataset.n_words, args.hidden_size, args.hidden_size, dataset.n_words, dataset.len_instr,
+                              kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate)
 enc_optimizer = torch.optim.Adam(encoder.parameters(), lr=lr)
 optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
 criterion = nn.NLLLoss()
@@ -211,18 +206,18 @@ for epoch in range(1, n_epochs + 1):
   for i in range(int(steps)):
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
-    loss = train.train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
-                       inp, instr, target, args.mean_attn, attn=attn)
+    loss = train.train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
+                       inp, instr, target, attn=attn)
     writer.add_scalar('data/loss', loss, iters)
     df.loc[iters,'data/loss'] = loss
     losses.append(loss)
     iters += 1
-  acc, acc_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
-                                               batch_size, args.mean_attn, attn=attn)
-  acc_val, acc_val_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
-                                                       batch_size, args.mean_attn, attn=attn)
-  acc_tr, acc_tr_seq = evaluation.accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets,
-                                                      batch_size, args.mean_attn, attn=attn)
+  acc, acc_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
+                                               batch_size, attn=attn)
+  acc_val, acc_val_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
+                                                       batch_size, attn=attn)
+  acc_tr, acc_tr_seq = evaluation.accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets,
+                                                      batch_size, attn=attn)
   writer.add_scalar('data/test_accuracy', acc, iters)
   writer.add_scalar('data/train_accuracy', acc_tr, iters)
   writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
