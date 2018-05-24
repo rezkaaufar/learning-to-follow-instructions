@@ -1,0 +1,12 @@
+{
+    "optim": ["SGD", "Adam"], 
+    "lamb": ["1"],
+    "regularize": [0,1e-4,1e-3,1e-2],
+    "steps": [100,200, 500],
+    "lr": [1e-1,1e-2,1e-3],
+    "unfreezed": [1,2,3,6],
+    "k": [7],
+    "learner": ["gd"],
+    "output": ["hyperparameter_LSTM_human_full"],
+    "data" : ["sida wang's/txt/AZGBKAM5JUV5A", "sida wang's/txt/A1HKYY6XI2OHO1", "sida wang's/txt/ADJ9I7ZBFYFH7"]
+}

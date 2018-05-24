@@ -1,0 +1,2 @@
+optim_Adam-lamb_0-steps_200-lr_0.01-k_7-unfreezed_2-learner_gd-regularize_0.0001-regularizeemb_0.0001-regularizeweights_0.0001-output_results_human_test-data_A2IA303OT5BBX0
+[0.0, 0.0, [0.0], [0.0], [1], [1], [1.0], [1.0]]
