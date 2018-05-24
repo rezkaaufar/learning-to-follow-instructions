@@ -145,14 +145,14 @@ def run_train(config):
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
-        with open(dirs + "/models/conv2seq/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/conv2conv/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(encoder, ckpt)
-        with open(dirs + "/models/conv2seq/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/conv2conv/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
         torch.save(decoder.state_dict(),
-                   dirs + '/models/conv2seq/Params_Decoder_' + model_name + '.tar')
+                   dirs + '/models/conv2conv/Params_Decoder_' + model_name + '.tar')
         torch.save(encoder.state_dict(),
-                   dirs + '/models/conv2seq/Params_Encoder_' + model_name + '.tar')
+                   dirs + '/models/conv2conv/Params_Encoder_' + model_name + '.tar')
       #accs.append(acc_seq)
       #accs_tr.append(acc_tr_seq)
       print("Config {}, Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
@@ -169,18 +169,17 @@ import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
 ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
-ap.add_argument('--layers_lstm', type=int, choices=[1, 2])
 ap.add_argument('--layers_conv', type=int, choices=[4, 5])
 
 args = ap.parse_args()
 
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-model_name = "Conv2Seq_50000_nvl_" + which_data + "_" + model_name
+model_name = "Conv2Conv_50000_nvl_" + which_data + "_" + model_name
 
 t_start = time.time()
 
-decoder = Decoder.Decoder(dataset.n_letters, args.hidden_size, dataset.n_letters, args.layers_lstm, dropout_p=args.dropout_rate,
-                          example_len=dataset.len_instr, concat=False)
+decoder = Decoder.ConvDecoder(dataset.n_letters, args.hidden_size, args.hidden_size, dataset.n_letters, dataset.len_targets,
+                              kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate, example_len=dataset.len_instr)
 encoder = Encoder.ConvEncoder(dataset.n_words, args.hidden_size, args.hidden_size, dataset.n_words, dataset.len_instr,
                               kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate)
 enc_optimizer = torch.optim.Adam(encoder.parameters(), lr=lr)
@@ -233,20 +232,20 @@ for epoch in range(1, n_epochs + 1):
   if acc_val_seq > cur_best:
     cur_best = acc_val_seq
     print("Writing models at epoch {}".format(epoch))
-    with open(dirs + "/models/conv2seq/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+    with open(dirs + "/models/conv2conv/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
       torch.save(encoder, ckpt)
-    with open(dirs + "/models/conv2seq/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+    with open(dirs + "/models/conv2conv/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
       torch.save(decoder, ckpt)
     torch.save(decoder.state_dict(),
-               dirs + '/models/conv2seq/Params_Decoder_' + model_name + '.tar')
+               dirs + '/models/conv2conv/Params_Decoder_' + model_name + '.tar')
     torch.save(encoder.state_dict(),
-               dirs + '/models/conv2seq/Params_Encoder_' + model_name + '.tar')
+               dirs + '/models/conv2conv/Params_Encoder_' + model_name + '.tar')
   # accs.append(acc_seq)
   # accs_tr.append(acc_tr_seq)
   print("Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
         "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
         .format(loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
 
-writer.export_scalars_to_json(dirs + "/json/conv2seq/" + model_name + ".json")
+writer.export_scalars_to_json(dirs + "/json/conv2conv/" + model_name + ".json")
 writer.close()
-df.to_json(dirs + '/json/conv2seq/'+ model_name + '.pd.json')
+df.to_json(dirs + '/json/conv2conv/'+ model_name + '.pd.json')
