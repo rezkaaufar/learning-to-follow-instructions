@@ -11,7 +11,6 @@ import evaluation
 import math
 import itertools
 import os
-import encoder_attn
 import pandas as pd
 from tensorboardX import SummaryWriter
 
@@ -51,6 +50,7 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
+dirs += "/.."
 
 ## helper function ##
 def time_since(since):
@@ -106,7 +106,7 @@ def run_train(config):
     losses, accs, accs_tr = [], [], []
 
     writer = SummaryWriter()
-    df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy', 
+    df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy',
     'data/train_accuracy', 'data/test_seq_accuracy', 'data/train_seq_accuracy',
     'data/val_accuracy', 'data/val_seq_accuracy', 'iters'])
     df = df.set_index('iters')
@@ -145,14 +145,14 @@ def run_train(config):
       if acc_val_seq > cur_best:
         cur_best = acc_val_seq
         print("Writing models at epoch {}".format(epoch))
-        with open(dirs + "/models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/conv2seq/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(encoder, ckpt)
-        with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+        with open(dirs + "/models/conv2seq/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
           torch.save(decoder, ckpt)
         torch.save(decoder.state_dict(),
-                   dirs + '/models/Params_Decoder_' + model_name + '.tar')
+                   dirs + '/models/conv2seq/Params_Decoder_' + model_name + '.tar')
         torch.save(encoder.state_dict(),
-                   dirs + '/models/Params_Encoder_' + model_name + '.tar')
+                   dirs + '/models/conv2seq/Params_Encoder_' + model_name + '.tar')
       #accs.append(acc_seq)
       #accs_tr.append(acc_tr_seq)
       print("Config {}, Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
@@ -169,27 +169,18 @@ import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--hidden_size', type=int, choices=[32,64,128,256])
 ap.add_argument('--dropout_rate', type=float, choices=[0.0, 0.2, 0.5])
-ap.add_argument('--layers_conv', type=int, choices=[4, 5, 6])
 ap.add_argument('--layers_lstm', type=int, choices=[1, 2])
-#ap.add_argument('--mean_attn', type=str)
 
 args = ap.parse_args()
 
-# if args.mean_attn in ['yes', '1', 'true', 'True']:
-#   args.mean_attn = True
-# else:
-#   args.mean_attn = False
-
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-model_name = "Seq2Conv_50000_nvl_" + which_data + "_" + model_name
-cur_decoder = "/models/Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar"
-cur_encoder = "/models/Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar"
+model_name = "Seq2Seq_50000_nvl_" + which_data + "_" + model_name
 
 t_start = time.time()
 
-decoder = Decoder.ConvDecoder(dataset.n_letters, args.hidden_size, args.hidden_size, dataset.n_letters, dataset.len_example,
-                              kernel_size=3, n_layers=args.layers_conv, dropout_p=args.dropout_rate, example_len=dataset.len_instr)
-encoder = Encoder.EncoderWord(dataset.n_words, args.hidden_size, n_layers=args.layers_lstm)
+decoder = Decoder.Decoder(dataset.n_letters, args.hidden_size, dataset.n_letters, args.layers_lstm, dropout_p=args.dropout_rate,
+                          example_len=dataset.len_instr, concat=False)
+encoder = Encoder.Encoder(dataset.n_words, args.hidden_size, args.layers_lstm, dropout_p=args.dropout_rate)
 enc_optimizer = torch.optim.Adam(encoder.parameters(), lr=lr)
 optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
 criterion = nn.NLLLoss()
@@ -199,74 +190,61 @@ start = time.time()
 iters = 0
 losses, accs, accs_tr = [], [], []
 
-encoder = torch.load(dirs + cur_encoder)
-decoder = torch.load(dirs + cur_decoder)
-#decoder.load_state_dict(torch.load(dirs + cur_decoder))
-#encoder.load_state_dict(torch.load(dirs + cur_encoder))
+writer = SummaryWriter()
+df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy',
+'data/train_accuracy', 'data/test_seq_accuracy', 'data/train_seq_accuracy',
+'data/val_accuracy', 'data/val_seq_accuracy', 'iters'])
+df = df.set_index('iters')
 
-acc, acc_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
-                                             batch_size, attn=attn)
-acc_val, acc_val_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
-                                                     batch_size, attn=attn)
-acc_tr, acc_tr_seq = evaluation.accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets,
-                                                    batch_size, attn=attn)
+cur_best = 0
+for epoch in range(1, n_epochs + 1):
+  decoder.train(True)
+  encoder.train(True)
+  steps = len(inps) / batch_size
+  for i in range(int(steps)):
+    start_index = i * batch_size
+    inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
+    loss = train.train(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
+                       inp, instr, target, attn=attn)
+    writer.add_scalar('data/loss', loss, iters)
+    df.loc[iters,'data/loss'] = loss
+    losses.append(loss)
+    iters += 1
+  acc, acc_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
+                                               batch_size, attn=attn)
+  acc_val, acc_val_seq = evaluation.accuracy_test_data(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
+                                                       batch_size, attn=attn)
+  acc_tr, acc_tr_seq = evaluation.accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets,
+                                                      batch_size, attn=attn)
+  writer.add_scalar('data/test_accuracy', acc, iters)
+  writer.add_scalar('data/train_accuracy', acc_tr, iters)
+  writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
+  writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
+  writer.add_scalar('data/val_accuracy', acc_val, iters)
+  writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
+  df.loc[iters,'data/test_accuracy'] = acc
+  df.loc['data/train_accuracy'] = acc_tr
+  df.loc['data/test_seq_accuracy'] = acc_seq
+  df.loc['data/train_seq_accuracy'] = acc_tr_seq
+  df.loc['data/val_accuracy'] = acc_val
+  df.loc['data/val_seq_accuracy'] = acc_val_seq
+  if acc_val_seq > cur_best:
+    cur_best = acc_val_seq
+    print("Writing models at epoch {}".format(epoch))
+    with open(dirs + "/models/seq2seq/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
+      torch.save(encoder, ckpt)
+    with open(dirs + "/models/seq2seq/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
+      torch.save(decoder, ckpt)
+    torch.save(decoder.state_dict(),
+               dirs + '/models/seq2seq/Params_Decoder_' + model_name + '.tar')
+    torch.save(encoder.state_dict(),
+               dirs + '/models/seq2seq/Params_Encoder_' + model_name + '.tar')
+  # accs.append(acc_seq)
+  # accs_tr.append(acc_tr_seq)
+  print("Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
+        "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
+        .format(loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
 
-print(acc_val_seq, acc_tr_seq)
-# writer = SummaryWriter()
-# df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy',
-# 'data/train_accuracy', 'data/test_seq_accuracy', 'data/train_seq_accuracy',
-# 'data/val_accuracy', 'data/val_seq_accuracy', 'iters'])
-# df = df.set_index('iters')
-#
-# cur_best = 0
-# for epoch in range(1, n_epochs + 1):
-#   decoder.train(True)
-#   encoder.train(True)
-#   steps = len(inps) / batch_size
-#   for i in range(int(steps)):
-#     start_index = i * batch_size
-#     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
-#     loss = train.train_2(dataset, encoder, decoder, enc_optimizer, optimizer, criterion, dataset.len_targets, batch_size,
-#                        inp, instr, target, args.mean_attn, attn=attn)
-#     writer.add_scalar('data/loss', loss, iters)
-#     df.loc[iters,'data/loss'] = loss
-#     losses.append(loss)
-#     iters += 1
-#   acc, acc_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
-#                                                batch_size, args.mean_attn, attn=attn)
-#   acc_val, acc_val_seq = evaluation.accuracy_test_data_2(dataset, encoder, decoder, inps_v, instrs_v, targets_v,
-#                                                        batch_size, args.mean_attn, attn=attn)
-#   acc_tr, acc_tr_seq = evaluation.accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets,
-#                                                       batch_size, args.mean_attn, attn=attn)
-#   writer.add_scalar('data/test_accuracy', acc, iters)
-#   writer.add_scalar('data/train_accuracy', acc_tr, iters)
-#   writer.add_scalar('data/test_seq_accuracy', acc_seq, iters)
-#   writer.add_scalar('data/train_seq_accuracy', acc_tr_seq, iters)
-#   writer.add_scalar('data/val_accuracy', acc_val, iters)
-#   writer.add_scalar('data/val_seq_accuracy', acc_val_seq, iters)
-#   df.loc[iters,'data/test_accuracy'] = acc
-#   df.loc['data/train_accuracy'] = acc_tr
-#   df.loc['data/test_seq_accuracy'] = acc_seq
-#   df.loc['data/train_seq_accuracy'] = acc_tr_seq
-#   df.loc['data/val_accuracy'] = acc_val
-#   df.loc['data/val_seq_accuracy'] = acc_val_seq
-#   if acc_val_seq > cur_best:
-#     cur_best = acc_val_seq
-#     print("Writing models at epoch {}".format(epoch))
-#     with open(dirs + "/models/" + "Encoder_" + model_name + ".tar", 'wb') as ckpt:
-#       torch.save(encoder, ckpt)
-#     with open(dirs + "/models/" + "Decoder_" + model_name + ".tar", 'wb') as ckpt:
-#       torch.save(decoder, ckpt)
-#     torch.save(decoder.state_dict(),
-#                dirs + '/models/Params_Decoder_' + model_name + '.tar')
-#     torch.save(encoder.state_dict(),
-#                dirs + '/models/Params_Encoder_' + model_name + '.tar')
-#   # accs.append(acc_seq)
-#   # accs_tr.append(acc_tr_seq)
-#   print("Loss {}, Test Accuracy {}, Train Accuracy {}, Val Accuracy {}, "
-#         "Test Seq Accuracy {}, Train Seq Accuracy {}, Val Seq Accuracy {}"
-#         .format(loss, acc, acc_tr, acc_val, acc_seq, acc_tr_seq, acc_val_seq))
-#
-# writer.export_scalars_to_json(dirs + "/json/" + model_name + ".json")
-# writer.close()
-# df.to_json(dirs + '/json/'+ model_name + '.pd.json')
+writer.export_scalars_to_json(dirs + "/json/seq2seq/" + model_name + ".json")
+writer.close()
+df.to_json(dirs + '/json/seq2seq/'+ model_name + '.pd.json')
