@@ -1,0 +1,12 @@
+{
+    "optim": ["Adam", "SGD"], 
+    "lamb": ["0"],
+    "regularize": [0,1e-4,1e-3,1e-2],
+    "steps": [5, 10, 20, 50, 100, 200, 500],
+    "lr": [1e-1, 1e-2, 1e-3, 1e-4, 1e-5], 
+    "unfreezed": [1],
+    "k": [1],
+    "learner": ["gd"],
+    "output": ["hyperparameter_artificial_data_LSTM"],
+    "data" : ["lang_games_data_artificial_train_online_nvl"]
+}

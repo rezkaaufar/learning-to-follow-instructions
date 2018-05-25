@@ -1,0 +1,2 @@
+optim_SGD-lamb_0-steps_200-lr_0.01-k_7-unfreezed_5-learner_gd-regularize_0.01-regularizeemb_0.01-regularizeweights_0.01-output_results_human_test-data_A2HSCKH5NKN5LP
+[0.0, 0.0, [0.0], [0.0], [2], [2], [1.0], [1.0]]
