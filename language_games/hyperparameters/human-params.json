@@ -1,0 +1,12 @@
+{
+    "optim": ["SGD"], 
+    "lamb": ["0"],
+    "regularize": [1e-5,1e-4,1e-3,1e-2,1e-1],
+    "steps": [100, 200, 500,1000,5000],
+    "lr": [10,1,0.1,1e-2],
+    "unfreezed": [1],
+    "k": [7],
+    "learner": ["gd"],
+    "output": ["hyperparameter_Trans_hardcodeatt_human"],
+    "data" : ["AZGBKAM5JUV5A", "A1HKYY6XI2OHO1", "ADJ9I7ZBFYFH7"]
+}

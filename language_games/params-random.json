@@ -1,0 +1,6 @@
+{
+    "lamb": ["1","0"],
+    "k": [7],
+    "learner": ["random"],
+    "data" : ["lang_games_data_artificial_train_online_nvl"]
+}

@@ -1,0 +1,110 @@
+Writing models at epoch 1
+Loss 0.0381304207055465, Test Accuracy 0.9491195521924807, Train Accuracy 0.9789647850314036, Val Accuracy 0.9418478136477263, Test Seq Accuracy 0.039500000000000014, Train Seq Accuracy 0.5953809523809519, Val Seq Accuracy 0.03000000000000001
+Writing models at epoch 2
+Loss 0.013598720664563387, Test Accuracy 0.9588912909445555, Train Accuracy 0.996281565617824, Val Accuracy 0.9651304219080055, Test Seq Accuracy 0.20275000000000004, Train Seq Accuracy 0.919714285714286, Val Seq Accuracy 0.29275000000000007
+Loss 0.005004826123299806, Test Accuracy 0.9715108581211256, Train Accuracy 0.9992194613191159, Val Accuracy 0.9616086843221084, Test Seq Accuracy 0.3869999999999999, Train Seq Accuracy 0.9821904761904773, Val Seq Accuracy 0.28025
+Loss 0.004854108004466347, Test Accuracy 0.9666739012884057, Train Accuracy 0.9991211174561123, Val Accuracy 0.9601412935101468, Test Seq Accuracy 0.27575000000000005, Train Seq Accuracy 0.9800238095238102, Val Seq Accuracy 0.24674999999999997
+Writing models at epoch 5
+Loss 0.0006632643306384916, Test Accuracy 0.9769347718228465, Train Accuracy 0.9999140786705056, Val Accuracy 0.9708043357600337, Test Seq Accuracy 0.4852499999999999, Train Seq Accuracy 0.9980238095238102, Val Seq Accuracy 0.4170000000000001
+Loss 0.0014148411219534667, Test Accuracy 0.9786412968583729, Train Accuracy 0.9998146997845692, Val Accuracy 0.9616086838038072, Test Seq Accuracy 0.517, Train Seq Accuracy 0.9957619047619064, Val Seq Accuracy 0.26275000000000004
+Writing models at epoch 7
+Loss 0.001873744732659796, Test Accuracy 0.9813369460727858, Train Accuracy 0.9997753622122186, Val Accuracy 0.967978248000145, Test Seq Accuracy 0.5929999999999999, Train Seq Accuracy 0.9948809523809538, Val Seq Accuracy 0.4347499999999999
+Writing models at epoch 8
+Loss 0.0025537334706472316, Test Accuracy 0.9848804273035215, Train Accuracy 1.0, Val Accuracy 0.9703478127717972, Test Seq Accuracy 0.65225, Train Seq Accuracy 1.0, Val Seq Accuracy 0.45025000000000004
+Loss 0.0001692815339597671, Test Accuracy 0.9869130347086036, Train Accuracy 0.9999968944128996, Val Accuracy 0.970021725607955, Test Seq Accuracy 0.7, Train Seq Accuracy 0.9999285714285715, Val Seq Accuracy 0.42374999999999996
+Loss 4.23300763308678e-05, Test Accuracy 0.9843804264846056, Train Accuracy 1.0, Val Accuracy 0.969695638962414, Test Seq Accuracy 0.641, Train Seq Accuracy 1.0, Val Seq Accuracy 0.43475
+Loss 0.00011440556820320046, Test Accuracy 0.9858043364856555, Train Accuracy 0.9999948240214993, Val Accuracy 0.9653152064136837, Test Seq Accuracy 0.677, Train Seq Accuracy 0.9998809523809525, Val Seq Accuracy 0.42124999999999996
+Writing models at epoch 12
+Loss 0.0007028723054605981, Test Accuracy 0.9889239076686942, Train Accuracy 0.999984472064498, Val Accuracy 0.9721521644488625, Test Seq Accuracy 0.7452500000000001, Train Seq Accuracy 0.9996428571428573, Val Seq Accuracy 0.4539999999999999
+Loss 3.308710723143557e-05, Test Accuracy 0.9851521669522576, Train Accuracy 0.9999886128472986, Val Accuracy 0.96324998723424, Test Seq Accuracy 0.6585000000000001, Train Seq Accuracy 0.9997380952380953, Val Seq Accuracy 0.42225
+Writing models at epoch 14
+Loss 2.1781919159643028e-05, Test Accuracy 0.9891195593968681, Train Accuracy 1.0, Val Accuracy 0.9723043347182481, Test Seq Accuracy 0.7497499999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.49225000000000013
+Writing models at epoch 15
+Loss 1.2529414126892453e-05, Test Accuracy 0.989271735108417, Train Accuracy 1.0, Val Accuracy 0.9724782477254453, Test Seq Accuracy 0.75325, Train Seq Accuracy 1.0, Val Seq Accuracy 0.49874999999999997
+Loss 1.0680114982001808e-05, Test Accuracy 0.9877173843591109, Train Accuracy 1.0, Val Accuracy 0.9725108565195747, Test Seq Accuracy 0.7174999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.497
+Writing models at epoch 17
+Loss 0.00011390344361248224, Test Accuracy 0.9834673816743105, Train Accuracy 0.9999958592171995, Val Accuracy 0.9777391170677932, Test Seq Accuracy 0.6412500000000001, Train Seq Accuracy 0.999904761904762, Val Seq Accuracy 0.59525
+Loss 5.044376619322144e-05, Test Accuracy 0.9864021632982337, Train Accuracy 1.0, Val Accuracy 0.9775543351536212, Test Seq Accuracy 0.69625, Train Seq Accuracy 1.0, Val Seq Accuracy 0.59075
+Loss 3.974365181816013e-05, Test Accuracy 0.9841739036466765, Train Accuracy 0.9999834368687979, Val Accuracy 0.9762282472589742, Test Seq Accuracy 0.6359999999999999, Train Seq Accuracy 0.999619047619048, Val Seq Accuracy 0.55575
+Loss 0.00107639509698619, Test Accuracy 0.9901739058287248, Train Accuracy 0.9998447205709374, Val Accuracy 0.9801086858562801, Test Seq Accuracy 0.7759999999999999, Train Seq Accuracy 0.996452380952382, Val Seq Accuracy 0.5889999999999999
+Writing models at epoch 21
+Loss 0.0007249078834834306, Test Accuracy 0.9884999929562859, Train Accuracy 0.9996459625275732, Val Accuracy 0.9863478143577991, Test Seq Accuracy 0.7387499999999999, Train Seq Accuracy 0.9919523809523828, Val Seq Accuracy 0.6945
+Loss 9.717071509879568e-05, Test Accuracy 0.9871521678955658, Train Accuracy 0.9999347826091892, Val Accuracy 0.9772065086209256, Test Seq Accuracy 0.70575, Train Seq Accuracy 0.9985000000000005, Val Seq Accuracy 0.57075
+Loss 1.697602514784945e-05, Test Accuracy 0.9912065139283305, Train Accuracy 1.0, Val Accuracy 0.9753804208143898, Test Seq Accuracy 0.79775, Train Seq Accuracy 1.0, Val Seq Accuracy 0.5295
+Loss 0.00044455938041210175, Test Accuracy 0.9897499924120696, Train Accuracy 0.9996501034584598, Val Accuracy 0.9670217263957729, Test Seq Accuracy 0.78325, Train Seq Accuracy 0.9919523809523827, Val Seq Accuracy 0.466
+Loss 4.998310570321653e-05, Test Accuracy 0.9875652070926584, Train Accuracy 0.999913043462465, Val Accuracy 0.9692391175290812, Test Seq Accuracy 0.7144999999999999, Train Seq Accuracy 0.998000000000001, Val Seq Accuracy 0.45624999999999993
+Loss 1.4048244338482618e-05, Test Accuracy 0.9909347747978957, Train Accuracy 0.9999948240214993, Val Accuracy 0.973847812284594, Test Seq Accuracy 0.7915, Train Seq Accuracy 0.9998809523809525, Val Seq Accuracy 0.5282500000000001
+Loss 1.4044098940718433e-05, Test Accuracy 0.9935978218265201, Train Accuracy 1.0, Val Accuracy 0.9737173782742542, Test Seq Accuracy 0.85275, Train Seq Accuracy 1.0, Val Seq Accuracy 0.52275
+Loss 2.0754647582931362e-05, Test Accuracy 0.989489124002664, Train Accuracy 1.0, Val Accuracy 0.9786521612302117, Test Seq Accuracy 0.7582500000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6159999999999999
+Loss 0.0030193270548530245, Test Accuracy 0.9893043413110402, Train Accuracy 0.9998923395608029, Val Accuracy 0.9780869439892147, Test Seq Accuracy 0.7539999999999999, Train Seq Accuracy 0.9975238095238104, Val Seq Accuracy 0.603
+Loss 4.507189758283936e-05, Test Accuracy 0.9887608617544175, Train Accuracy 0.9999151138662058, Val Accuracy 0.9766956396724866, Test Seq Accuracy 0.7415, Train Seq Accuracy 0.99804761904762, Val Seq Accuracy 0.571
+Loss 7.2864862411971325e-06, Test Accuracy 0.9893043413110402, Train Accuracy 1.0, Val Accuracy 0.9780543351950852, Test Seq Accuracy 0.7539999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.60225
+Loss 3.88415007720418e-06, Test Accuracy 0.9915434711653254, Train Accuracy 1.0, Val Accuracy 0.9784130310234816, Test Seq Accuracy 0.8055000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6104999999999999
+Loss 3.4972896252799295e-06, Test Accuracy 0.9915434711653254, Train Accuracy 1.0, Val Accuracy 0.9784130310234816, Test Seq Accuracy 0.8055000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6104999999999999
+Loss 2.6839713783651265e-06, Test Accuracy 0.990717386033224, Train Accuracy 1.0, Val Accuracy 0.9784021613390549, Test Seq Accuracy 0.7865, Train Seq Accuracy 1.0, Val Seq Accuracy 0.61025
+Loss 0.0003291660838800928, Test Accuracy 0.9878152084091435, Train Accuracy 0.9998043479262919, Val Accuracy 0.9776738994795343, Test Seq Accuracy 0.7302500000000001, Train Seq Accuracy 0.9955000000000014, Val Seq Accuracy 0.56275
+Loss 3.249956416371076e-05, Test Accuracy 0.9909999942002089, Train Accuracy 0.9998933747811841, Val Accuracy 0.9750652047603027, Test Seq Accuracy 0.79375, Train Seq Accuracy 0.9975476190476202, Val Seq Accuracy 0.5355
+Loss 1.1982087491323119e-05, Test Accuracy 0.9914456447829371, Train Accuracy 0.9999927536300991, Val Accuracy 0.9763260737709377, Test Seq Accuracy 0.80325, Train Seq Accuracy 0.9998333333333335, Val Seq Accuracy 0.5627500000000001
+Loss 4.891934741349162e-06, Test Accuracy 0.9926630375177964, Train Accuracy 1.0, Val Accuracy 0.9779239004072936, Test Seq Accuracy 0.83125, Train Seq Accuracy 1.0, Val Seq Accuracy 0.59925
+Loss 3.631840429633208e-06, Test Accuracy 0.9919782540072566, Train Accuracy 1.0, Val Accuracy 0.9782065090925797, Test Seq Accuracy 0.8154999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6057500000000002
+Loss 0.0006976588426724724, Test Accuracy 0.9922934725232746, Train Accuracy 1.0, Val Accuracy 0.9762391181095786, Test Seq Accuracy 0.8227499999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.56175
+Loss 5.107278348473103e-05, Test Accuracy 0.9892282528721767, Train Accuracy 0.9998385093350342, Val Accuracy 0.9756195525760236, Test Seq Accuracy 0.75375, Train Seq Accuracy 0.9962857142857157, Val Seq Accuracy 0.5617500000000002
+Loss 6.764037053748641e-06, Test Accuracy 0.9900326021339583, Train Accuracy 1.0, Val Accuracy 0.9778912925201914, Test Seq Accuracy 0.7707500000000002, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6244999999999999
+Loss 4.445988452062011e-06, Test Accuracy 0.9902608627858369, Train Accuracy 1.0, Val Accuracy 0.9789673787096272, Test Seq Accuracy 0.776, Train Seq Accuracy 1.0, Val Seq Accuracy 0.62325
+Loss 0.002316546504912169, Test Accuracy 0.9859999921010888, Train Accuracy 0.9993105581211501, Val Accuracy 0.9756847695164058, Test Seq Accuracy 0.6994999999999999, Train Seq Accuracy 0.9844047619047628, Val Seq Accuracy 0.5567500000000001
+Loss 3.500026144573222e-05, Test Accuracy 0.9907499931428744, Train Accuracy 0.9999958592171995, Val Accuracy 0.9785543351069741, Test Seq Accuracy 0.78725, Train Seq Accuracy 0.999904761904762, Val Seq Accuracy 0.61375
+Loss 9.251884994623454e-06, Test Accuracy 0.9938695599203524, Train Accuracy 1.0, Val Accuracy 0.9779130305932916, Test Seq Accuracy 0.8589999999999998, Train Seq Accuracy 1.0, Val Seq Accuracy 0.599
+Loss 2.880635640948363e-05, Test Accuracy 0.9943804300349691, Train Accuracy 0.9999741200951563, Val Accuracy 0.9770760738331339, Test Seq Accuracy 0.87675, Train Seq Accuracy 0.9994047619047621, Val Seq Accuracy 0.60225
+Loss 3.76908681810955e-06, Test Accuracy 0.9951086924127911, Train Accuracy 1.0, Val Accuracy 0.978293465660966, Test Seq Accuracy 0.8875, Train Seq Accuracy 1.0, Val Seq Accuracy 0.609
+Loss 2.2832206488364255e-06, Test Accuracy 0.9951304315224938, Train Accuracy 1.0, Val Accuracy 0.9784021614686302, Test Seq Accuracy 0.8880000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6107499999999999
+Loss 7.727644001336202e-05, Test Accuracy 0.9951304315224938, Train Accuracy 0.9999989648042998, Val Accuracy 0.9778478132641834, Test Seq Accuracy 0.8880000000000001, Train Seq Accuracy 0.9999761904761905, Val Seq Accuracy 0.598
+Loss 4.4099556322654955e-05, Test Accuracy 0.9893369510121968, Train Accuracy 0.9999824016730978, Val Accuracy 0.9781412916338962, Test Seq Accuracy 0.7547499999999999, Train Seq Accuracy 0.9995952380952382, Val Seq Accuracy 0.605
+Loss 6.240554680318936e-06, Test Accuracy 0.9906304272620574, Train Accuracy 0.9999927536300991, Val Accuracy 0.977815204470054, Test Seq Accuracy 0.7845, Train Seq Accuracy 0.9998333333333334, Val Seq Accuracy 0.63225
+Loss 2.64679876399105e-05, Test Accuracy 0.9916630371757176, Train Accuracy 1.0, Val Accuracy 0.9778695515964342, Test Seq Accuracy 0.8082499999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.598
+Loss 4.398718769864543e-06, Test Accuracy 0.991684775767119, Train Accuracy 1.0, Val Accuracy 0.9765434642200884, Test Seq Accuracy 0.8087500000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.59625
+Loss 2.09352235643841e-06, Test Accuracy 0.9902826025434163, Train Accuracy 1.0, Val Accuracy 0.9771521607170934, Test Seq Accuracy 0.7765000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.594
+Loss 2.210865837380128e-06, Test Accuracy 0.9882608635270077, Train Accuracy 1.0, Val Accuracy 0.9774891173062117, Test Seq Accuracy 0.7337499999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.5897500000000001
+Loss 1.1066664465824546e-05, Test Accuracy 0.994326080057932, Train Accuracy 1.0, Val Accuracy 0.9792065090459326, Test Seq Accuracy 0.8695, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6287499999999999
+Loss 2.1847018101455077e-05, Test Accuracy 0.9916956449332445, Train Accuracy 0.9999585921596543, Val Accuracy 0.977336943279142, Test Seq Accuracy 0.8089999999999999, Train Seq Accuracy 0.9990476190476194, Val Seq Accuracy 0.5970000000000001
+Loss 4.469000724265757e-06, Test Accuracy 0.990760862827301, Train Accuracy 1.0, Val Accuracy 0.9777065086623896, Test Seq Accuracy 0.7875, Train Seq Accuracy 1.0, Val Seq Accuracy 0.59425
+Loss 2.8380103606690206e-06, Test Accuracy 0.9927608631227327, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8375, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 2.018264912413028e-06, Test Accuracy 0.9929347765186559, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8375, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 1.5354155987987053e-06, Test Accuracy 0.9927173852920532, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8324999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 1.212617581072466e-06, Test Accuracy 0.9927173852920532, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8324999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 8.734413036702039e-07, Test Accuracy 0.9929347765186559, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8375, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 7.109020257105484e-07, Test Accuracy 0.9929347765186559, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8375, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 6.802185215865788e-07, Test Accuracy 0.9923043422077014, Train Accuracy 1.0, Val Accuracy 0.9781086824510409, Test Seq Accuracy 0.8229999999999998, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6035
+Loss 0.00399135603852894, Test Accuracy 0.9790108577064845, Train Accuracy 0.9983643863388717, Val Accuracy 0.9751630306243897, Test Seq Accuracy 0.5897499999999999, Train Seq Accuracy 0.9628333333333332, Val Seq Accuracy 0.5445
+Loss 0.0002111963644299818, Test Accuracy 0.9909347753161969, Train Accuracy 0.9999544513645132, Val Accuracy 0.9769456391749175, Test Seq Accuracy 0.7915000000000001, Train Seq Accuracy 0.9989523809523814, Val Seq Accuracy 0.5647499999999999
+Loss 5.717070408813331e-06, Test Accuracy 0.989739121950191, Train Accuracy 1.0, Val Accuracy 0.9769999865604484, Test Seq Accuracy 0.764, Train Seq Accuracy 1.0, Val Seq Accuracy 0.5797500000000001
+Loss 6.461703805657832e-05, Test Accuracy 0.9902826025434163, Train Accuracy 0.9999979296085998, Val Accuracy 0.9760434649560763, Test Seq Accuracy 0.7765000000000002, Train Seq Accuracy 0.999952380952381, Val Seq Accuracy 0.5569999999999999
+Loss 3.1755284315137113e-06, Test Accuracy 0.99206521148267, Train Accuracy 0.9999979296085998, Val Accuracy 0.9761304212653119, Test Seq Accuracy 0.8175000000000001, Train Seq Accuracy 0.999952380952381, Val Seq Accuracy 0.56025
+Loss 2.059522122853314e-06, Test Accuracy 0.9930217342532199, Train Accuracy 1.0, Val Accuracy 0.9760434649560763, Test Seq Accuracy 0.8394999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.558
+Loss 0.00017970915802794954, Test Accuracy 0.9979999956877336, Train Accuracy 0.9998447206079589, Val Accuracy 0.9744891190010568, Test Seq Accuracy 0.9559999999999998, Train Seq Accuracy 0.9964523809523822, Val Seq Accuracy 0.56275
+Loss 6.827893388538581e-06, Test Accuracy 0.9917608638172565, Train Accuracy 1.0, Val Accuracy 0.9790760742581409, Test Seq Accuracy 0.8105, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6212499999999999
+Loss 2.6947518167814808e-06, Test Accuracy 0.9930760806021484, Train Accuracy 1.0, Val Accuracy 0.9800652059523955, Test Seq Accuracy 0.8407499999999997, Train Seq Accuracy 1.0, Val Seq Accuracy 0.62975
+Loss 8.357296515580105e-06, Test Accuracy 0.9935978218265201, Train Accuracy 1.0, Val Accuracy 0.9774999878976656, Test Seq Accuracy 0.85275, Train Seq Accuracy 1.0, Val Seq Accuracy 0.608
+Loss 2.9254999548277776e-06, Test Accuracy 0.9934891262780066, Train Accuracy 1.0, Val Accuracy 0.9772717269866363, Test Seq Accuracy 0.85025, Train Seq Accuracy 1.0, Val Seq Accuracy 0.60275
+Loss 2.5792741444488256e-06, Test Accuracy 0.9943478213704151, Train Accuracy 1.0, Val Accuracy 0.9770978142385898, Test Seq Accuracy 0.8699999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6002499999999998
+Loss 2.302460210478824e-05, Test Accuracy 0.9922717314699422, Train Accuracy 0.9999855072601982, Val Accuracy 0.9791304220323978, Test Seq Accuracy 0.82225, Train Seq Accuracy 0.9996666666666668, Val Seq Accuracy 0.6242500000000001
+Loss 3.192942961544284e-06, Test Accuracy 0.9950978198777074, Train Accuracy 1.0, Val Accuracy 0.9761630305777426, Test Seq Accuracy 0.9010000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6060000000000001
+Loss 1.8553111421288517e-06, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9776304224263067, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6025000000000001
+Loss 1.673905543335106e-06, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9778586832077607, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6077500000000001
+Loss 1.0222972733849336e-06, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9782934655313906, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6077500000000001
+Loss 8.794536963408894e-07, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9782934655313906, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6077500000000001
+Loss 6.327421863755697e-07, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9782717264216879, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6072500000000001
+Loss 5.326063451913955e-07, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9782717264216879, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6072500000000001
+Loss 1.7933223558508832e-05, Test Accuracy 0.9965652130220247, Train Accuracy 1.0, Val Accuracy 0.9782717264216879, Test Seq Accuracy 0.9209999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6072500000000001
+Loss 3.8354293159816577e-07, Test Accuracy 0.9967173871786698, Train Accuracy 1.0, Val Accuracy 0.9782717264216879, Test Seq Accuracy 0.9244999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6072500000000001
+Loss 2.6020385912093133e-05, Test Accuracy 0.9905760794878006, Train Accuracy 0.9999968944128996, Val Accuracy 0.9758912922247597, Test Seq Accuracy 0.8057500000000001, Train Seq Accuracy 0.9999285714285715, Val Seq Accuracy 0.5574999999999999
+Loss 3.288663245494599e-05, Test Accuracy 0.9905869504679804, Train Accuracy 0.9998426500808132, Val Accuracy 0.9800434642511865, Test Seq Accuracy 0.7935000000000001, Train Seq Accuracy 0.9964285714285726, Val Seq Accuracy 0.6527499999999999
+Loss 5.821248455701963e-05, Test Accuracy 0.990847816804181, Train Accuracy 1.0, Val Accuracy 0.9781304215607436, Test Seq Accuracy 0.8140000000000001, Train Seq Accuracy 1.0, Val Seq Accuracy 0.6047500000000001
+Loss 3.1523086363449693e-06, Test Accuracy 0.9896412960861041, Train Accuracy 1.0, Val Accuracy 0.9784456394288851, Test Seq Accuracy 0.7894999999999999, Train Seq Accuracy 1.0, Val Seq Accuracy 0.61175
+Loss 6.943579216528198e-06, Test Accuracy 0.9899999899708707, Train Accuracy 0.9999886128472986, Val Accuracy 0.9770108568927516, Test Seq Accuracy 0.79575, Train Seq Accuracy 0.9997380952380953, Val Seq Accuracy 0.58125
+Loss 3.7052320650495263e-06, Test Accuracy 0.9906086875044782, Train Accuracy 1.0, Val Accuracy 0.9775978136321772, Test Seq Accuracy 0.784, Train Seq Accuracy 1.0, Val Seq Accuracy 0.59175
+Loss 0.00013355047280049843, Test Accuracy 0.9898804262928341, Train Accuracy 0.9999896480429987, Val Accuracy 0.977489117435787, Test Seq Accuracy 0.7949999999999999, Train Seq Accuracy 0.999761904761905, Val Seq Accuracy 0.5897499999999999
+Loss 1.5458232551084265e-05, Test Accuracy 0.988749992199566, Train Accuracy 0.9999834368687979, Val Accuracy 0.9786195515290551, Test Seq Accuracy 0.7775000000000001, Train Seq Accuracy 0.9996190476190479, Val Seq Accuracy 0.63125
+Loss 1.0522137492206758e-05, Test Accuracy 0.9907499921062718, Train Accuracy 1.0, Val Accuracy 0.9784565092428871, Test Seq Accuracy 0.80975, Train Seq Accuracy 1.0, Val Seq Accuracy 0.61175
+Loss 1.4856588044811203e-06, Test Accuracy 0.9908478183590848, Train Accuracy 0.9999989648042998, Val Accuracy 0.978347813564798, Test Seq Accuracy 0.8119999999999999, Train Seq Accuracy 0.9999761904761905, Val Seq Accuracy 0.609
+Loss 0.0008397551010484281, Test Accuracy 0.9944565153640249, Train Accuracy 0.9998550725649603, Val Accuracy 0.9799347689618235, Test Seq Accuracy 0.88175, Train Seq Accuracy 0.9966666666666679, Val Seq Accuracy 0.64225
+Loss 7.471001995524959e-06, Test Accuracy 0.9903478172810182, Train Accuracy 0.9999927536177586, Val Accuracy 0.9793043351691703, Test Seq Accuracy 0.778, Train Seq Accuracy 0.9998333333333334, Val Seq Accuracy 0.631
