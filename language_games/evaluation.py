@@ -48,7 +48,7 @@ def accuracy_test_data(dataset, encoder, decoder, inps_t, instrs_t, targets_t, b
       truth = Variable(torch.ones(batch_size)).cuda() * 23
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
-  return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
+  return acc_tot / (int(it) * dataset.len_targets), acc_tot_seq / int(it)
 
 def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_size, attn=False):
   it = len(inps) / batch_size
@@ -91,7 +91,7 @@ def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_
       truth = Variable(torch.ones(batch_size)).cuda() * 23
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
-  return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
+  return acc_tot / (int(it) * dataset.len_targets), acc_tot_seq / int(it)
 
 def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, mean_attn, attn=False):
   it = len(inps_t) / batch_size
@@ -133,7 +133,7 @@ def accuracy_test_data_2(dataset, encoder, decoder, inps_t, instrs_t, targets_t,
       truth = Variable(torch.ones(batch_size)).cuda() * 23
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
-  return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
+  return acc_tot / (int(it) * dataset.len_targets), acc_tot_seq / int(it)
 
 def accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets, batch_size, mean_attn, attn=False):
   it = len(inps) / batch_size
@@ -176,4 +176,4 @@ def accuracy_train_data_2(dataset, encoder, decoder, inps, instrs, targets, batc
       truth = Variable(torch.ones(batch_size)).cuda() * 23
       acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
       # print((pred_seq == tgt_seq).float().sum(dim=0))
-  return acc_tot / (it * dataset.len_targets), acc_tot_seq / it
+  return acc_tot / (int(it) * dataset.len_targets), acc_tot_seq / int(it)

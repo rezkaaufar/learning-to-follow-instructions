@@ -57,7 +57,7 @@ def accuracy_train_data(dataset, encoder, decoder, inps, instrs, targets, batch_
     encoder.eval()
     start_index = i * batch_size
     inp, instr, target = dataset.generate_batch(start_index, batch_size, inps, instrs, targets)
-    pos_id_words = generate_position_ids_word(batch_size)
+    pos_id_words = generate_position_ids_word(batch_size, dataset.len_instr)
     encoder_ht = encoder(instr, pos_id_words, batch_size)
     context = encoder_ht
     hidden = decoder.init_hidden(batch_size)

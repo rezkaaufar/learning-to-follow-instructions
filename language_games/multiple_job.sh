@@ -55,6 +55,17 @@ declare -a arr=("remove_brown_2nd"
 #	done
 #done
 
+# seq2conv #
+for HS in 32 64 128 256; do
+	for DR in 0.2 0.5; do
+	    for LC in 4 5; do
+	        for LL in 1 2; do
+ 		        qsub -v HS=$HS,DR=$DR,LC=$LC,LL=$LL -q gpu $HOME/language_games/job.sh
+ 		    done
+ 		done
+	done
+done
+
 # conv2conv #
 #for HS in 64 128 256; do
 #	for DR in 0.2 0.5; do
@@ -74,9 +85,9 @@ declare -a arr=("remove_brown_2nd"
 #done
 
 # human data artificial #
-for i in "${arr[@]}"; do
-    qsub -v DATA=$i -q gpu $HOME/language_games/job.sh
-done
+#for i in "${arr[@]}"; do
+#    qsub -v DATA=$i -q gpu $HOME/language_games/job.sh
+#done
 
 #for STEPS in 10 20 50 100 200 500 ; do
 #	for OPTIM in "Adam" "SGD"; do

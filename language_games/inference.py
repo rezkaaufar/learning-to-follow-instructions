@@ -16,34 +16,34 @@ def convert_to_characters(dataset, arr):
   return res
 
 def infer(dataset, encoder, decoder, inps_t, instrs_t, targets_t, batch_size, attn=True):
-  batch_size = 20
-  start_index = 10
-  acc_tot = 0
   acc_tot_seq = 0
+  i = 0
   decoder.eval()
   encoder.eval()
-  attn = True
+  start_index = i * batch_size
   inp, instr, target = dataset.generate_batch(start_index, batch_size, inps_t, instrs_t, targets_t)
   encoder_hidden = encoder.init_hidden(batch_size)
   encoder_ht, encoder_hidden = encoder(instr, encoder_hidden, batch_size)
   context = encoder_ht
-  hidden = encoder_hidden
   position_ids = generate_position_ids(batch_size, dataset.len_targets)
   if attn:
     pred_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
     tgt_seq = Variable(torch.zeros(dataset.len_targets, batch_size)).cuda()
-    output, vis_attn = decoder(inp, position_ids, batch_size, attn=True,
+    output, vis_attn = decoder(inp, position_ids, batch_size, dataset.len_example, dataset.len_targets,
+                               dataset.len_instr, attn=True,
                                context=context)
     op = output.transpose(0, 1)  # seq_len, bs, class
     for c in range(dataset.len_targets):
       tgt_seq[c] = target[:, c]
       pred_seq[c] = op[c].max(1)[1]
       accuracy = (op[c].max(1)[1] == target[:, c]).float().sum().float() / batch_size
-      acc_tot += accuracy.data[0]
+      #acc_tot += accuracy.data[0]
     truth = Variable(torch.ones(batch_size)).cuda() * 23
-    # print(pred_seq, tgt_seq)
-    for c in range(batch_size):
-      print(inps_t[start_index + c], instrs_t[start_index + c])
-      print(convert_to_characters(tgt_seq[:, c].data))
-      print(convert_to_characters(pred_seq[:, c].data))
     acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
+    print(acc_tot_seq)
+    for c in range(batch_size):
+      #print(inps_t[start_index + c], instrs_t[start_index + c])
+      print(convert_to_characters(dataset, pred_seq[:, c].data) == convert_to_characters(dataset, tgt_seq[:, c].data))
+      # print(convert_to_characters(dataset, tgt_seq[:, c].data))
+      # print(convert_to_characters(dataset, pred_seq[:, c].data))
+    #acc_tot_seq += ((pred_seq == tgt_seq).float().sum(dim=0) == truth).float().sum().data[0] / batch_size
