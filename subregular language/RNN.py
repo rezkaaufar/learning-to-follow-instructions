@@ -35,8 +35,8 @@ class RNN(nn.Module):
 
     if not attn:
       seq_len = embedded.size(1)
-      prev_ht = self.init_prev_ht(batch_size, seq_len)
-      embedded = torch.cat((embedded, prev_ht), dim=2)
+      #prev_ht = self.init_prev_ht(batch_size, seq_len)
+      #embedded = torch.cat((embedded, prev_ht), dim=2)
       ht, hidden = self.lstm(embedded, hidden)  # [batch_size, seq_len, hidden_size]
       output = self.output(ht.squeeze(1))
     else:
@@ -78,7 +78,7 @@ class RNN(nn.Module):
           noise = Variable((c) * torch.ones(batch_size, 1).long()).cuda()
           noise_embed = self.ponder_noise(noise)  # [batch_size, 1, n_hidden]
           embedded = torch.add(inp_embedded, noise_embed)
-          embedded = torch.cat((embedded, prev_ht), dim=2)
+          #embedded = torch.cat((embedded, prev_ht), dim=2)
           ht, hidden = self.lstm(embedded, hidden)
           prob_ht = self.linear_ponder(ht)
           # calulate N attn
@@ -112,7 +112,7 @@ class RNN(nn.Module):
 
       ### attention with dot mechanism Luong ###
       else:
-        embedded = torch.cat((embedded, prev_ht), dim=2)
+        #embedded = torch.cat((embedded, prev_ht), dim=2)
         ht, hidden = self.lstm(embedded, hidden)  # [batch_size, 1, hidden_size]
         # (batch, out_len, dim) * (batch, in_len, dim) -> (batch, out_len, in_len)
         # in_len is the number of characters in total k-factors

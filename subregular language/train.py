@@ -3,10 +3,10 @@ import torch
 from torch.autograd import Variable
 
 
-def train(inp, target, rnn, rnn_optimizer, criterion, batch_size, len_example, attn=False, ponder=False, pool=False):
+def train(inp, target, rnn, rnn_optimizer, criterion, batch_size, len_example, n_hidden, attn=False, ponder=False, pool=False):
     hidden = rnn.init_hidden(batch_size)
+    rnn.train()
     rnn.zero_grad()
-    n_hidden = 128
     # pool
     pool_hidden = Variable(torch.zeros(len_example - 20, batch_size, 1
                                            , n_hidden)).cuda()

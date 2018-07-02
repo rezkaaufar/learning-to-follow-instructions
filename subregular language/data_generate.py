@@ -6,8 +6,8 @@ import copy
 logging.basicConfig(level=logging.INFO)
 
 show_progress= False
-n_grammars = 500
-n_examples = 2
+n_grammars = 5
+n_examples = 4000
 K = 3  # maximum size of k-factors
 k = 3  # minumum size of k-factors
 F = 5  # number of k-factors in a grammar
@@ -49,27 +49,50 @@ def gen_example(g, cls):
         if belongs(g, s) == cls:
             return s
 
-# f = open("subreg_train_500_2.txt", "w")
-# ft = open("subreg_test_500_2.txt", "w")
+f = open("dataset/overlap/subreg_train_" + str(n_grammars) +  ".txt", "w")
+ft = open("dataset/overlap/subreg_test_" + str(n_grammars) +  ".txt", "w")
+fv = open("dataset/overlap/subreg_valid_" + str(n_grammars) +  ".txt", "w") # "_" + str(n_examples) +
 
-# train_composition = 0.8 * n_examples
-# batch_example = 0
-# for i in range(n_grammars):
-#     g = gen_grammar()
-#     g_str = "#".join(g)
-#     for j in range(n_examples):
-#         if show_progress:
-#             sys.stderr.write("\r{:02.2f}%".format(100*(i*n_examples+j)/n_grammars/n_examples))
-#         pos = gen_example(g, True)
-#         neg = gen_example(g, False)
-#         if batch_example + (j+1) <= train_composition + batch_example :
-#             f.write("\t".join([g_str, pos, "1"]) + "\n")
-#             f.write("\t".join([g_str, neg, "0"]) + "\n")
-#         else:
-#             ft.write("\t".join([g_str, pos, "1"]) + "\n")
-#             ft.write("\t".join([g_str, neg, "0"]) + "\n")
-#     batch_example += n_examples
+train_composition = 0.8 * n_examples * n_grammars
+rest_composition = 0.1 * n_examples * n_grammars
+batch_example = 0
 
-# f.close()
-# ft.close()
+# generate training
+grammar_pool = []
+for i in range(n_grammars):
+    g = gen_grammar()
+    g_str = "#".join(g)
+    grammar_pool.append((g_str, g))
+    for j in range(n_examples):
+        if show_progress:
+            sys.stderr.write("\r{:02.2f}%".format(100*(i*n_examples+j)/n_grammars/n_examples))
+        pos = gen_example(g, True)
+        neg = gen_example(g, False)
+        if batch_example + (j+1) <= train_composition:
+            f.write("\t".join([g_str, pos, "1"]) + "\n")
+            f.write("\t".join([g_str, neg, "0"]) + "\n")
+        # elif batch_example + (j+1) <= train_composition + rest_composition + batch_example:
+        #     fv.write("\t".join([g_str, pos, "1"]) + "\n")
+        #     fv.write("\t".join([g_str, neg, "0"]) + "\n")
+    batch_example += n_examples
+    if batch_example + 1 > train_composition:
+        break
 
+for i in range(int(rest_composition)):
+    gs = random.choice(grammar_pool)
+    pos = gen_example(gs[1], True)
+    neg = gen_example(gs[1], False)
+    fv.write("\t".join([gs[0], pos, "1"]) + "\n")
+    fv.write("\t".join([gs[0], neg, "0"]) + "\n")
+
+for i in range(int(rest_composition)):
+    gs = random.choice(grammar_pool)
+    pos = gen_example(gs[1], True)
+    neg = gen_example(gs[1], False)
+    ft.write("\t".join([gs[0], pos, "1"]) + "\n")
+    ft.write("\t".join([gs[0], neg, "0"]) + "\n")
+
+
+f.close()
+ft.close()
+fv.close()

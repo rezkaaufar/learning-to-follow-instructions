@@ -4,7 +4,7 @@ import torch
 from torch.autograd import Variable
 
 class Dataset(object):
-  def __init__(self, inps, labels, inps_t, labels_t):
+  def __init__(self, inps, labels, inps_v, labels_v, inps_t, labels_t):
     """
     Builds dataset with train and test input and labels.
     It is built to generate random batch for training
@@ -21,6 +21,8 @@ class Dataset(object):
     self._labels = labels
     self._inps_t = inps_t
     self._labels_t = labels_t
+    self._inps_v = inps_v
+    self._labels_v = labels_v
 
   def randomize_data(self):
     ## randomize training data ##
@@ -39,6 +41,71 @@ class Dataset(object):
     random.shuffle(even_ind)
     random.shuffle(odd_ind)
     shuffled_index = np.array([val for pair in zip(even_ind, odd_ind) for val in pair])
+    self._inps_t = np.array(self._inps_t)[shuffled_index].tolist()
+    self._labels_t = np.array(self._labels_t)[shuffled_index].tolist()
+    ## randomize validation data ##
+    even_ind = np.arange(0, len(self._inps_v), 2)
+    odd_ind = np.arange(1, len(self._inps_v), 2)
+    assert len(even_ind) == len(odd_ind)
+    random.shuffle(even_ind)
+    random.shuffle(odd_ind)
+    shuffled_index = np.array([val for pair in zip(even_ind, odd_ind) for val in pair])
+    self._inps_v = np.array(self._inps_v)[shuffled_index].tolist()
+    self._labels_v = np.array(self._labels_v)[shuffled_index].tolist()
+
+  def randomize_data_odd(self):
+    # even_ind = np.arange(0,len(inps),2)
+    odd_ind = np.arange(1, len(self._inps), 2)
+    # assert len(even_ind) == len(odd_ind)
+    # random.shuffle(even_ind)
+    random.shuffle(odd_ind)
+    shuffled_index = np.array(odd_ind)
+    self._inps = np.array(self._inps)[shuffled_index].tolist()
+    self._labels = np.array(self._labels)[shuffled_index].tolist()
+
+    # even_ind = np.arange(0,len(inps),2)
+    odd_ind = np.arange(1, len(self._inps_v), 2)
+    # assert len(even_ind) == len(odd_ind)
+    # random.shuffle(even_ind)
+    random.shuffle(odd_ind)
+    shuffled_index = np.array(odd_ind)
+    self._inps_v = np.array(self._inps_v)[shuffled_index].tolist()
+    self._labels_v = np.array(self._labels_v)[shuffled_index].tolist()
+
+    # even_ind = np.arange(0,len(inps),2)
+    odd_ind = np.arange(1, len(self._inps_t), 2)
+    # assert len(even_ind) == len(odd_ind)
+    # random.shuffle(even_ind)
+    random.shuffle(odd_ind)
+    shuffled_index = np.array(odd_ind)
+    self._inps_t = np.array(self._inps_t)[shuffled_index].tolist()
+    self._labels_t = np.array(self._labels_t)[shuffled_index].tolist()
+
+  def randomize_data_ev(self):
+    even_ind = np.arange(0, len(self._inps), 2)
+    # odd_ind = np.arange(1,len(inps),2)
+    # assert len(even_ind) == len(odd_ind)
+    random.shuffle(even_ind)
+    # random.shuffle(odd_ind)
+    shuffled_index = np.array(even_ind)
+    self._inps = np.array(self._inps)[shuffled_index].tolist()
+    self._labels = np.array(self._labels)[shuffled_index].tolist()
+
+    even_ind = np.arange(0, len(self._inps_v), 2)
+    # odd_ind = np.arange(1,len(inps),2)
+    # assert len(even_ind) == len(odd_ind)
+    random.shuffle(even_ind)
+    # random.shuffle(odd_ind)
+    shuffled_index = np.array(even_ind)
+    self._inps_v = np.array(self._inps_v)[shuffled_index].tolist()
+    self._labels_v = np.array(self._labels_v)[shuffled_index].tolist()
+
+    even_ind = np.arange(0, len(self._inps_t), 2)
+    # odd_ind = np.arange(1,len(inps),2)
+    # assert len(even_ind) == len(odd_ind)
+    random.shuffle(even_ind)
+    # random.shuffle(odd_ind)
+    shuffled_index = np.array(even_ind)
     self._inps_t = np.array(self._inps_t)[shuffled_index].tolist()
     self._labels_t = np.array(self._labels_t)[shuffled_index].tolist()
 
@@ -63,13 +130,19 @@ class Dataset(object):
         tensor[li] = letter_index
     return tensor
 
-  def generate_batch(self, start_index, batch_size, train=True):
+  def generate_batch(self, start_index, batch_size, train=0):
     inp_tensor = torch.zeros(batch_size, self._len_example).long()
     lab_tensor = torch.zeros(batch_size, 1).long()
-    if train:
+    if train == 0:
       for i in range(batch_size):
         inp = self.seq_tensor(self._inps[start_index + i])
         lab = self.categories_tensor(self._labels[start_index + i])
+        inp_tensor[i, :] = inp
+        lab_tensor[i, :] = lab
+    elif train == 1:
+      for i in range(batch_size):
+        inp = self.seq_tensor(self._inps_v[start_index + i])
+        lab = self.categories_tensor(self._labels_v[start_index + i])
         inp_tensor[i, :] = inp
         lab_tensor[i, :] = lab
     else:
