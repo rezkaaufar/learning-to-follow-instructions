@@ -146,6 +146,8 @@ inps_v, labels_v = data_loader.read_data(dirs + "/dataset/" + datver_1 + "overla
 inps_t, labels_t = data_loader.read_data(dirs + "/dataset/" + datver_1 + "overlap/subreg_test_" + which_data + datver_2 + ".txt")
 dataset = data_loader.Dataset(inps, labels, inps_v, labels_v, inps_t, labels)
 dataset.randomize_data()
+dataset.randomize_data_ev()
+dataset.randomize_data_odd()
 
 print(dirs + "/dataset/" + datver_1 + "overlap/subreg_valid_" + which_data + datver_2 + ".txt")
 
@@ -183,8 +185,8 @@ rnn.train(True)
 losses, accs, accs_tr = [], [], []
 
 writer = SummaryWriter()
-df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy',
-'data/train_accuracy', 'data/val_accuracy', 'iters'])
+df = pd.DataFrame(columns=["data/loss", 'data/test_accuracy', 'data/test_reject_accuracy', 'data/test_accept_accuracy'
+'data/train_accuracy', 'data/valid_accuracy', 'data/valid_reject_accuracy', 'data/valid_accept_accuracy', 'iters'])
 df = df.set_index('iters')
 
 cur_best = 0
@@ -201,32 +203,73 @@ for epoch in range(1, n_epochs + 1):
     if iters % print_every == 0:
       acc = evaluation.accuracy_test_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
                                           pool=pool)
-      acc_v = evaluation.accuracy_valid_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
+      acc_te = evaluation.accuracy_data(dataset, 2, False, rnn, batch_size, len_example, args.hidden_size, attn=attn,
+                                        ponder=ponder,
+                                        pool=pool)
+      acc_to = evaluation.accuracy_data(dataset, 2, True, rnn, batch_size, len_example, args.hidden_size, attn=attn,
+                                        ponder=ponder,
+                                        pool=pool)
+      acc_v = evaluation.accuracy_valid_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn,
+                                             ponder=ponder,
                                              pool=pool)
+      acc_ve = evaluation.accuracy_data(dataset, 1, False, rnn, batch_size, len_example, args.hidden_size, attn=attn,
+                                        ponder=ponder,
+                                        pool=pool)
+      acc_vo = evaluation.accuracy_data(dataset, 1, True, rnn, batch_size, len_example, args.hidden_size, attn=attn,
+                                        ponder=ponder,
+                                        pool=pool)
       acc_tr = evaluation.accuracy_train_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
                                               pool=pool)
       writer.add_scalar('data/test_accuracy', acc, iters)
+      writer.add_scalar('data/test_reject_accuracy', acc_to, iters)
+      writer.add_scalar('data/test_accept_accuracy', acc_te, iters)
       writer.add_scalar('data/valid_accuracy', acc_v, iters)
+      writer.add_scalar('data/valid_reject_accuracy', acc_vo, iters)
+      writer.add_scalar('data/valid_accept_accuracy', acc_ve, iters)
       writer.add_scalar('data/train_accuracy', acc_tr, iters)
       df.loc[iters, 'data/test_accuracy'] = acc
+      df.loc[iters, 'data/test_reject_accuracy'] = acc_to
+      df.loc[iters, 'data/test_accept_accuracy'] = acc_te
       df.loc['data/train_accuracy'] = acc_tr
-      df.loc['data/val_accuracy'] = acc_v
+      df.loc['data/valid_accuracy'] = acc_v
+      df.loc[iters, 'data/valid_reject_accuracy'] = acc_vo
+      df.loc[iters, 'data/valid_accept_accuracy'] = acc_ve
       if acc_v > cur_best:
         print("Writing models at epoch {}".format(epoch))
         with open(dirs + '/models/' + model_path + '/' + model_name + '.tar', 'wb') as ckpt:
           torch.save(rnn, ckpt)
       print("Loss {}, Test Accuracy {}, Train Accuracy {}, Validation Accuracy {}".format(loss, acc, acc_tr, acc_v))
+      print("Val Rej {}, Val Acc {}, Test Rej {}, Test Acc {}".format(acc_vo, acc_ve, acc_to, acc_te))
 
     iters += 1
 
 acc = evaluation.accuracy_test_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder, pool=pool)
+acc_te = evaluation.accuracy_data(dataset, 2, False, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
+                                       pool=pool)
+acc_to = evaluation.accuracy_data(dataset, 2, True, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
+                                       pool=pool)
 acc_v = evaluation.accuracy_valid_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
+                                       pool=pool)
+acc_ve = evaluation.accuracy_data(dataset, 1, False, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
+                                       pool=pool)
+acc_vo = evaluation.accuracy_data(dataset, 1, True, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
                                        pool=pool)
 acc_tr = evaluation.accuracy_train_data(dataset, rnn, batch_size, len_example, args.hidden_size, attn=attn, ponder=ponder,
                                         pool=pool)
 writer.add_scalar('data/test_accuracy', acc, iters)
+writer.add_scalar('data/test_reject_accuracy', acc_to, iters)
+writer.add_scalar('data/test_accept_accuracy', acc_te, iters)
 writer.add_scalar('data/valid_accuracy', acc_v, iters)
+writer.add_scalar('data/valid_reject_accuracy', acc_vo, iters)
+writer.add_scalar('data/valid_accept_accuracy', acc_ve, iters)
 writer.add_scalar('data/train_accuracy', acc_tr, iters)
+df.loc[iters, 'data/test_accuracy'] = acc
+df.loc[iters, 'data/test_reject_accuracy'] = acc_to
+df.loc[iters, 'data/test_accept_accuracy'] = acc_te
+df.loc['data/train_accuracy'] = acc_tr
+df.loc['data/valid_accuracy'] = acc_v
+df.loc[iters, 'data/valid_reject_accuracy'] = acc_vo
+df.loc[iters, 'data/valid_accept_accuracy'] = acc_ve
 writer.export_scalars_to_json(dirs + "/json/" + model_path + "/" + model_name + ".json")
 df.to_json(dirs + "/json/" + model_path + "/" + model_name + "_pd.json")
 writer.close()

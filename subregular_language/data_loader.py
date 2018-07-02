@@ -21,8 +21,16 @@ class Dataset(object):
     self._labels = labels
     self._inps_t = inps_t
     self._labels_t = labels_t
+    self._inps_te = []
+    self._labels_te = []
+    self._inps_to = []
+    self._labels_to = []
     self._inps_v = inps_v
     self._labels_v = labels_v
+    self._inps_ve = []
+    self._labels_ve = []
+    self._inps_vo = []
+    self._labels_vo = []
 
   def randomize_data(self):
     ## randomize training data ##
@@ -55,22 +63,13 @@ class Dataset(object):
 
   def randomize_data_odd(self):
     # even_ind = np.arange(0,len(inps),2)
-    odd_ind = np.arange(1, len(self._inps), 2)
-    # assert len(even_ind) == len(odd_ind)
-    # random.shuffle(even_ind)
-    random.shuffle(odd_ind)
-    shuffled_index = np.array(odd_ind)
-    self._inps = np.array(self._inps)[shuffled_index].tolist()
-    self._labels = np.array(self._labels)[shuffled_index].tolist()
-
-    # even_ind = np.arange(0,len(inps),2)
     odd_ind = np.arange(1, len(self._inps_v), 2)
     # assert len(even_ind) == len(odd_ind)
     # random.shuffle(even_ind)
     random.shuffle(odd_ind)
     shuffled_index = np.array(odd_ind)
-    self._inps_v = np.array(self._inps_v)[shuffled_index].tolist()
-    self._labels_v = np.array(self._labels_v)[shuffled_index].tolist()
+    self._inps_vo = np.array(self._inps_v)[shuffled_index].tolist()
+    self._labels_vo = np.array(self._labels_v)[shuffled_index].tolist()
 
     # even_ind = np.arange(0,len(inps),2)
     odd_ind = np.arange(1, len(self._inps_t), 2)
@@ -78,27 +77,18 @@ class Dataset(object):
     # random.shuffle(even_ind)
     random.shuffle(odd_ind)
     shuffled_index = np.array(odd_ind)
-    self._inps_t = np.array(self._inps_t)[shuffled_index].tolist()
-    self._labels_t = np.array(self._labels_t)[shuffled_index].tolist()
+    self._inps_to = np.array(self._inps_t)[shuffled_index].tolist()
+    self._labels_to = np.array(self._labels_t)[shuffled_index].tolist()
 
   def randomize_data_ev(self):
-    even_ind = np.arange(0, len(self._inps), 2)
-    # odd_ind = np.arange(1,len(inps),2)
-    # assert len(even_ind) == len(odd_ind)
-    random.shuffle(even_ind)
-    # random.shuffle(odd_ind)
-    shuffled_index = np.array(even_ind)
-    self._inps = np.array(self._inps)[shuffled_index].tolist()
-    self._labels = np.array(self._labels)[shuffled_index].tolist()
-
     even_ind = np.arange(0, len(self._inps_v), 2)
     # odd_ind = np.arange(1,len(inps),2)
     # assert len(even_ind) == len(odd_ind)
     random.shuffle(even_ind)
     # random.shuffle(odd_ind)
     shuffled_index = np.array(even_ind)
-    self._inps_v = np.array(self._inps_v)[shuffled_index].tolist()
-    self._labels_v = np.array(self._labels_v)[shuffled_index].tolist()
+    self._inps_ve = np.array(self._inps_v)[shuffled_index].tolist()
+    self._labels_ve = np.array(self._labels_v)[shuffled_index].tolist()
 
     even_ind = np.arange(0, len(self._inps_t), 2)
     # odd_ind = np.arange(1,len(inps),2)
@@ -106,8 +96,8 @@ class Dataset(object):
     random.shuffle(even_ind)
     # random.shuffle(odd_ind)
     shuffled_index = np.array(even_ind)
-    self._inps_t = np.array(self._inps_t)[shuffled_index].tolist()
-    self._labels_t = np.array(self._labels_t)[shuffled_index].tolist()
+    self._inps_te = np.array(self._inps_t)[shuffled_index].tolist()
+    self._labels_te = np.array(self._labels_t)[shuffled_index].tolist()
 
   # turn string into list of longs
   def char_tensor(self, string):
@@ -149,6 +139,44 @@ class Dataset(object):
       for i in range(batch_size):
         inp = self.seq_tensor(self._inps_t[start_index + i])
         lab = self.categories_tensor(self._labels_t[start_index + i])
+        inp_tensor[i, :] = inp
+        lab_tensor[i, :] = lab
+    # uncomment to do this with CPU
+    # return Variable(inp_tensor), Variable(lab_tensor)
+    return Variable(inp_tensor, requires_grad=False).cuda(), Variable(lab_tensor, requires_grad=False).cuda()
+
+  def generate_batch_odd(self, start_index, batch_size, train=1):
+    inp_tensor = torch.zeros(batch_size, self._len_example).long()
+    lab_tensor = torch.zeros(batch_size, 1).long()
+    if train == 1:
+      for i in range(batch_size):
+        inp = self.seq_tensor(self._inps_vo[start_index + i])
+        lab = self.categories_tensor(self._labels_vo[start_index + i])
+        inp_tensor[i, :] = inp
+        lab_tensor[i, :] = lab
+    else:
+      for i in range(batch_size):
+        inp = self.seq_tensor(self._inps_to[start_index + i])
+        lab = self.categories_tensor(self._labels_to[start_index + i])
+        inp_tensor[i, :] = inp
+        lab_tensor[i, :] = lab
+    # uncomment to do this with CPU
+    # return Variable(inp_tensor), Variable(lab_tensor)
+    return Variable(inp_tensor, requires_grad=False).cuda(), Variable(lab_tensor, requires_grad=False).cuda()
+
+  def generate_batch_even(self, start_index, batch_size, train=1):
+    inp_tensor = torch.zeros(batch_size, self._len_example).long()
+    lab_tensor = torch.zeros(batch_size, 1).long()
+    if train == 1:
+      for i in range(batch_size):
+        inp = self.seq_tensor(self._inps_ve[start_index + i])
+        lab = self.categories_tensor(self._labels_ve[start_index + i])
+        inp_tensor[i, :] = inp
+        lab_tensor[i, :] = lab
+    else:
+      for i in range(batch_size):
+        inp = self.seq_tensor(self._inps_te[start_index + i])
+        lab = self.categories_tensor(self._labels_te[start_index + i])
         inp_tensor[i, :] = inp
         lab_tensor[i, :] = lab
     # uncomment to do this with CPU
