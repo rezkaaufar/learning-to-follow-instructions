@@ -173,6 +173,7 @@ pool = False
 
 rnn = RNN.RNN(dataset._n_letters, args.hidden_size, dataset._n_categories, n_layers=args.layers_lstm,
               dropout_p=args.dropout_rate, grammar_len=grammar_len, n_k_factors=n_k_factors)
+torch.backends.cudnn.enabled=False
 rnn.cuda()
 
 rnn_optimizer = torch.optim.Adam(rnn.parameters(), lr=lr)
