@@ -40,6 +40,8 @@ def add_info(string):
   return " ".join(ins)
 command_list = [["remove", "add"], ["cyan", "brown", "red", "orange"],
                 ["1st", "2nd", "3rd", "4th", "5th", "6th", "even", "odd", "leftmost", "rightmost", "every"]]
+# command_list = [["remove", "add"], ["cyan", "brown", "red", "orange"],
+#                 ["1st", "2nd", "3rd", "4th", "5th", "6th", "even", "odd", "leftmost", "rightmost", "every"]]
 # length : 88
 novel_amount = 5
 command = [add_info(" ".join(p)) for p in itertools.product(*command_list)]

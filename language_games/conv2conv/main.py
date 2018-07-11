@@ -49,6 +49,11 @@ if bi:
 print_every = 200
 load = False
 
+fseed = True
+
+if fseed:
+  torch.cuda.manual_seed_all(999)
+
 dirs = os.path.dirname(os.path.abspath(__file__))
 dirs += "/.."
 
