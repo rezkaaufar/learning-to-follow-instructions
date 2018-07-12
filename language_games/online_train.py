@@ -21,8 +21,8 @@ import os
 ## hyperparameters ##
 # hyperparameters
 n_epochs = 100
-n_hidden = 64 # (32, 64, 128, 256)
-n_layers = 1 # (1, 2)
+n_hidden = 256# (32, 64, 128, 256)
+n_layers = 2 # (1, 2)
 layers_conv = 5
 lr = 1e-3
 clip = 5.0
@@ -54,8 +54,8 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
-cur_decoder = "/models/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar"
-cur_encoder = "/models/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_hid64_layer1_drop0.5_dot.tar"
+cur_decoder = "/models/seq2conv/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_masked_same_seeds_which_masked-layers_lstm_2-layers_conv_5-hidden_size_256-dropout_rate_0.5.tar"
+cur_encoder = "/models/seq2conv/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_masked_same_seeds_which_masked-layers_lstm_2-layers_conv_5-hidden_size_256-dropout_rate_0.5.tar"
 
 ## main run ##
 
@@ -76,10 +76,10 @@ def run_train_optim(num_init, human_data, optimizer, lamb, training_updates, lea
                                                       + which_data + "_50000.txt")
   inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
                                                       + which_data + "_50000.txt")
-  # inps_m, instrs_m, targets_m = hot.read_merged_data(
-  #   dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
   inps_m, instrs_m, targets_m = hot.read_merged_data(
-    dirs + "/dataset/online_test/" + human_data + ".txt")
+    dirs + "/dataset/sida wang's/txt/" + human_data + ".txt")
+  # inps_m, instrs_m, targets_m = hot.read_merged_data(
+  #   dirs + "/dataset/online_test/" + human_data + ".txt")
   # inps_m, instrs_m, targets_m = hot.read_merged_data(dirs + "/dataset/" + human_data + ".txt")
 
   dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)

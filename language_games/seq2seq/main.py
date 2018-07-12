@@ -49,6 +49,11 @@ if bi:
 print_every = 200
 load = False
 
+fseed = True
+
+if fseed:
+  torch.cuda.manual_seed_all(999)
+
 dirs = os.path.dirname(os.path.abspath(__file__))
 dirs += "/.."
 
@@ -64,11 +69,11 @@ def time_since(since):
 # initialize dataset
 which_data = "utter_blocks"
 inps, instrs, targets = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_train_nvl_"
-                                              + which_data + "_50000.txt")
+                                              + which_data + "_24000_3.txt")
 inps_v, instrs_v, targets_v = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_valid_nvl_"
-                                                    + which_data + "_50000.txt")
+                                                    + which_data + "_24000_3.txt")
 inps_t, instrs_t, targets_t = data_loader.read_data(dirs + "/dataset/lang_games_data_artificial_test_nvl_"
-                                                    + which_data + "_50000.txt")
+                                                    + which_data + "_24000_3.txt")
 dataset = data_loader.Dataset(inps, instrs, targets, inps_v, instrs_v, targets_v, inps_t, instrs_t, targets_t)
 dataset.randomize_data()
 
@@ -174,7 +179,7 @@ ap.add_argument('--layers_lstm', type=int, choices=[1, 2])
 args = ap.parse_args()
 
 model_name = "-".join(["{}_{}".format(k, getattr(args, k)) for k in vars(args) if getattr(args, k) is not None])
-model_name = "Seq2Seq_50000_nvl_" + which_data + "_" + model_name
+model_name = "Seq2Seq_24000_3_nvl_" + which_data + "_" + model_name
 
 t_start = time.time()
 
