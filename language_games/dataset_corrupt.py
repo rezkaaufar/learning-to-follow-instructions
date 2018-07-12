@@ -69,52 +69,101 @@ def reorder_data(path):
   instrs = np.array(instrs)[shuffled_index].tolist()
   return inputs, instrs, targets
 
-if not ro:
-  f = open("./lang_games_data_artificial_train_nvl_utter_blocks_masked_50000.txt", "w")
-  ft = open("./lang_games_data_artificial_test_nvl_utter_blocks_masked_50000.txt", "w")
-  fv = open("./lang_games_data_artificial_valid_nvl_utter_blocks_masked_50000.txt", "w")
+def masked_reorder_data(path):
+  inputs = []
+  targets = []
+  instrs = []
+  with open(path, "r") as f:
+    for line in f:
+      ar = line.split("\t")
+      inp = ar[0]
+      ins = ar[1]
+      lab = ar[2].replace("\n", "")
+      inputs.append(inp)
+      targets.append(lab)
+      # corrupt word
+      words = ins.split(" ")
+      sent_corrupted = ""
+      for ro_index in ro_list:
+        sent_corrupted += change_dict[words[ro_index]] + " "
+      instrs.append(sent_corrupted[:-1])
+  ind = np.arange(0, len(inputs))
+  random.shuffle(ind)
+  shuffled_index = np.array([val for val in ind])
+  inputs = np.array(inputs)[shuffled_index].tolist()
+  targets = np.array(targets)[shuffled_index].tolist()
+  instrs = np.array(instrs)[shuffled_index].tolist()
+  return inputs, instrs, targets
 
-  which_data = "utter_blocks"
-  path = dirs + "/dataset/lang_games_data_artificial_train_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = corrupt_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    f.write(inp + "\t" + instr + "\t" + target + "\n")
-  f.close()
+f = open("./lang_games_data_artificial_train_nvl_utter_blocks_masked_reorder_50000.txt", "w")
+ft = open("./lang_games_data_artificial_test_nvl_utter_blocks_masked_reorder_50000.txt", "w")
+fv = open("./lang_games_data_artificial_valid_nvl_utter_blocks_masked_reorder_50000.txt", "w")
 
-  path = dirs + "/dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = corrupt_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    ft.write(inp + "\t" + instr + "\t" + target + "\n")
-  ft.close()
+which_data = "utter_blocks"
+path = dirs + "/dataset/lang_games_data_artificial_train_nvl_" + which_data + "_50000.txt"
+inps, instrs, targets = reorder_data(path)
+for inp, instr, target in zip(inps, instrs, targets):
+  f.write(inp + "\t" + instr + "\t" + target + "\n")
+f.close()
 
-  path = dirs + "/dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = corrupt_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    fv.write(inp + "\t" + instr + "\t" + target + "\n")
-  fv.close()
-else:
-  f = open("./lang_games_data_artificial_train_nvl_utter_blocks_reorder_50000.txt", "w")
-  ft = open("./lang_games_data_artificial_test_nvl_utter_blocks_reorder_50000.txt", "w")
-  fv = open("./lang_games_data_artificial_valid_nvl_utter_blocks_reorder_50000.txt", "w")
+path = dirs + "/dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt"
+inps, instrs, targets = reorder_data(path)
+for inp, instr, target in zip(inps, instrs, targets):
+  ft.write(inp + "\t" + instr + "\t" + target + "\n")
+ft.close()
 
-  which_data = "utter_blocks"
-  path = dirs + "/dataset/lang_games_data_artificial_train_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = reorder_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    f.write(inp + "\t" + instr + "\t" + target + "\n")
-  f.close()
+path = dirs + "/dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt"
+inps, instrs, targets = reorder_data(path)
+for inp, instr, target in zip(inps, instrs, targets):
+  fv.write(inp + "\t" + instr + "\t" + target + "\n")
+fv.close()
 
-  path = dirs + "/dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = reorder_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    ft.write(inp + "\t" + instr + "\t" + target + "\n")
-  ft.close()
-
-  path = dirs + "/dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt"
-  inps, instrs, targets = reorder_data(path)
-  for inp, instr, target in zip(inps, instrs, targets):
-    fv.write(inp + "\t" + instr + "\t" + target + "\n")
-  fv.close()
+# if not ro:
+#   f = open("./lang_games_data_artificial_train_nvl_utter_blocks_masked_50000.txt", "w")
+#   ft = open("./lang_games_data_artificial_test_nvl_utter_blocks_masked_50000.txt", "w")
+#   fv = open("./lang_games_data_artificial_valid_nvl_utter_blocks_masked_50000.txt", "w")
+#
+#   which_data = "utter_blocks"
+#   path = dirs + "/dataset/lang_games_data_artificial_train_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = corrupt_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     f.write(inp + "\t" + instr + "\t" + target + "\n")
+#   f.close()
+#
+#   path = dirs + "/dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = corrupt_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     ft.write(inp + "\t" + instr + "\t" + target + "\n")
+#   ft.close()
+#
+#   path = dirs + "/dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = corrupt_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     fv.write(inp + "\t" + instr + "\t" + target + "\n")
+#   fv.close()
+# else:
+#   f = open("./lang_games_data_artificial_train_nvl_utter_blocks_reorder_50000.txt", "w")
+#   ft = open("./lang_games_data_artificial_test_nvl_utter_blocks_reorder_50000.txt", "w")
+#   fv = open("./lang_games_data_artificial_valid_nvl_utter_blocks_reorder_50000.txt", "w")
+#
+#   which_data = "utter_blocks"
+#   path = dirs + "/dataset/lang_games_data_artificial_train_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = reorder_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     f.write(inp + "\t" + instr + "\t" + target + "\n")
+#   f.close()
+#
+#   path = dirs + "/dataset/lang_games_data_artificial_test_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = reorder_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     ft.write(inp + "\t" + instr + "\t" + target + "\n")
+#   ft.close()
+#
+#   path = dirs + "/dataset/lang_games_data_artificial_valid_nvl_" + which_data + "_50000.txt"
+#   inps, instrs, targets = reorder_data(path)
+#   for inp, instr, target in zip(inps, instrs, targets):
+#     fv.write(inp + "\t" + instr + "\t" + target + "\n")
+#   fv.close()
 
 
 # # we assume that there are 6 tiles and maximum 3 blocks
