@@ -14,12 +14,15 @@ module load CUDA
 #python3 $HOME/language_games/online_train.py --optim "Adam" --lamb 0 --steps 500 --regularize 0.0 --lr 0.001 --unfreezed 7 --k 7 --learner "gd" --output "recover_words_seq2conv_trial2/un7" --data $DATA &
 #python3 $HOME/language_games/online_train.py --optim "Adam" --lamb 0 --steps 500 --regularize 0.0 --lr 0.0001 --unfreezed 5 --k 7 --learner "gd" --output "recover_words_seq2conv_trial2/un5" --data $DATA &
 #python3 $HOME/language_games/online_train.py --optim "Adam" --lamb 0 --steps 500 --regularize 0.001 --lr 0.01 --unfreezed 1 --k 1 --learner "gd" --output "recover_words_seq2conv_trial2/k_1" --data $DATA &
+python3 $HOME/language_games/online_train.py --optim "SGD" --lamb 0 --steps 500 --regularize 0.0 --lr 0.001 --unfreezed 7 --k 7 --learner "gd" --output "result_human_test_masked" --data $DATA &
 
 # conv2seq #
 #python3 $HOME/language_games/conv2seq/main.py --hidden_size $HS --dropout_rate $DR --layers_conv $LC --layers_lstm $LL &
 
 # seq2conv #
-python3 $HOME/language_games/main.py --hidden_size $HS --dropout_rate $DR --layers_conv $LC --layers_lstm $LL &
+#python3 $HOME/language_games/main.py --hidden_size $HS --dropout_rate $DR --layers_conv $LC --layers_lstm $LL --which $W &
+#python3 $HOME/language_games/main.py --hidden_size 64 --dropout_rate 0.5 --layers_conv 5 --layers_lstm 2 --which "masked" &
+#python3 $HOME/language_games/main.py --hidden_size 64 --dropout_rate 0.5 --layers_conv 5 --layers_lstm 2 --which "reorder" &
 
 # conv2conv #
 #python3 $HOME/language_games/conv2conv/main.py --hidden_size $HS --dropout_rate $DR --layers_conv $LC &
