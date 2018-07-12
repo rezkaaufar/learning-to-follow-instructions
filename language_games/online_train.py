@@ -54,8 +54,8 @@ print_every = 200
 load = False
 
 dirs = os.path.dirname(os.path.abspath(__file__))
-cur_decoder = "/models/seq2conv/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_masked_same_seeds_which_masked-layers_lstm_2-layers_conv_5-hidden_size_256-dropout_rate_0.5.tar"
-cur_encoder = "/models/seq2conv/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_masked_same_seeds_which_masked-layers_lstm_2-layers_conv_5-hidden_size_256-dropout_rate_0.5.tar"
+cur_decoder = "/models/seq2conv/Params_Decoder_Seq2Conv_50000_nvl_utter_blocks_reorder_same_seeds_layers_lstm_2-hidden_size_256-dropout_rate_0.5-which_reorder-layers_conv_5.tar"
+cur_encoder = "/models/seq2conv/Params_Encoder_Seq2Conv_50000_nvl_utter_blocks_reorder_same_seeds_layers_lstm_2-hidden_size_256-dropout_rate_0.5-which_reorder-layers_conv_5.tar"
 
 ## main run ##
 
