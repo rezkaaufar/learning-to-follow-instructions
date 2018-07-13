@@ -1,1 +1,0 @@
-3 X X # 3 X X # 3 X X # 3 X X # 0 X X # 0 X X	move right most blue block	X X X # X X X # X X X # X X X # X X X # X X X

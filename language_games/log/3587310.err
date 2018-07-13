@@ -1,7 +1,0 @@
-/private/home/germank/anaconda3/lib/python3.6/site-packages/torch/cuda/__init__.py:95: UserWarning: 
-    Found GPU0 Tesla V100-SXM2-16GB which requires CUDA_VERSION >= 9000 for
-     optimal performance and fast startup time, but your PyTorch was compiled
-     with CUDA_VERSION 8000. Please install the correct PyTorch binary
-     using instructions from http://pytorch.org
-    
-  warnings.warn(incorrect_binary_warn % (d, name, 9000, CUDA_VERSION))
