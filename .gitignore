@@ -1,0 +1,10 @@
+language_games/models/
+language_games/json/
+language_games/log/
+language_games/runs/
+language_games/dataset/
+subregular_language/models/
+subregular_language/json/
+subregular_language/runs/
+subregular_language/dataset/
+shrdlurn-code/
