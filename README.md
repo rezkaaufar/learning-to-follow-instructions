@@ -1,7 +1,5 @@
 # learning-to-follow-instructions
 
-Thesis Draft Link : https://www.overleaf.com/13951194mxgqhzzhjrkr#/54080220/
+This repository contains the implementation of my [master thesis](https://rezkaaufar.github.io/thesis.pdf) and the [fast-and-flexible](paper). This repository is not maintained anymore so if you want to find anything please browse through the source code.
 
-Experiment Progress : https://www.overleaf.com/14276300ypzhyrmywxhs#/55034256/
-
-Paper Proposal : https://www.overleaf.com/13774818xbfvfrgcgkzg
+The more recent and cleaner implementation is hosted [here](https://github.com/rezkaaufar/fast-and-flexible).
